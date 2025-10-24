@@ -11,9 +11,9 @@ const montserrat = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CampaignHub - Campaign Management Platform",
+  title: "RingoAI - AI-powered customer support",
   description:
-    "Manage marketing campaigns with real-time call tracking and analytics",
+    "Manage customer support with AI-powered chatbots and AI-assisted agents",
 };
 
 export default function RootLayout({

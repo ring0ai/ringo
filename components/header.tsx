@@ -1,14 +1,17 @@
-"use client"
+"use client";
 
-import { UserButton } from "@clerk/nextjs"
-import Link from "next/link"
+import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 
 export function Header() {
   return (
     <header className="border-b border-border bg-card">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/dashboard" className="font-bold text-lg text-foreground hover:text-primary transition-colors">
-          Campaign Manager
+        <Link
+          href="/dashboard"
+          className="font-bold text-lg text-foreground hover:text-primary transition-colors"
+        >
+          RingoAI
         </Link>
         <div className="flex items-center gap-6">
           <Link
@@ -21,5 +24,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
