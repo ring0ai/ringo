@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import Providers from "@/components/Layout/Providers";
 
 const montserrat = Inter({
   subsets: ["latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={montserrat.className}>
-        <body className={`font-sans antialiased`}>{children}</body>
+        <body className={`font-sans antialiased`}>
+          <Providers>{children}</Providers>
+        </body>
       </html>
     </ClerkProvider>
   );

@@ -2,6 +2,7 @@
 
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   return (
@@ -20,7 +21,9 @@ export function Header() {
           >
             Clients
           </Link>
+
           <UserButton afterSignOutUrl="/" />
+          <ThemeToggle />
         </div>
       </div>
     </header>

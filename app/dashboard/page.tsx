@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { StatCardWithChart } from "@/components/stat-card-with-chart";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -52,7 +53,6 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Page Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-primary">Campaigns</h1>
@@ -67,7 +67,6 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {[
             { label: "Total Numbers", value: totalNumbers },

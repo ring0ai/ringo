@@ -12,6 +12,7 @@ import {
   TrendingUp,
   CheckCircle,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
@@ -24,16 +25,15 @@ export default function Home() {
   }, [isLoaded, user, router]);
 
   return (
-    <main className="min-h-screen bg-white text-black overflow-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-black/10">
+    <main className="min-h-screen   overflow-hidden bg-background">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-black/10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold tracking-tight">
+          <div className="text-2xl font-bold tracking-tight ">
             Campaign<span className="text-primary">Hub</span>
           </div>
           <div className="flex items-center gap-4">
             <SignInButton mode="modal">
-              <Button variant="ghost" className="text-black hover:bg-black/5">
+              <Button variant="ghost" className=" hover:bg-black/5">
                 Sign In
               </Button>
             </SignInButton>
@@ -42,6 +42,7 @@ export default function Home() {
                 Get Started
               </Button>
             </SignUpButton>
+            <ThemeToggle />
           </div>
         </div>
       </nav>
@@ -51,7 +52,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
           <div className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
             <span className="text-sm font-semibold text-primary">
-              ✨ Introducing CampaignHub
+              ✨ Introducing RingoAI
             </span>
           </div>
 
@@ -59,32 +60,29 @@ export default function Home() {
             Campaign Management <span className="text-primary">Reimagined</span>
           </h1>
 
-          <p className="text-xl text-black/60 max-w-2xl mx-auto text-balance leading-relaxed">
+          <p className="text-xl text-foreground/60 max-w-2xl mx-auto text-balance leading-relaxed">
             Track calling campaigns in real-time, manage agent calls, collect
             feedback, and analyze performance with enterprise-grade tools built
             for modern teams.
           </p>
 
           <div
-            className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-slide-up"
+            className="flex flex-col sm:flex-row sm:items-center gap-4 justify-center pt-4 animate-slide-up"
             style={{ animationDelay: "0.2s" }}
           >
             <SignUpButton mode="modal">
-              <Button
-                size="lg"
-                className="bg-primary text-white hover:bg-primary/90 cursor-pointer gap-2"
-              >
+              <Button size="lg">
                 Start Free <ArrowRight className="w-4 h-4" />
               </Button>
             </SignUpButton>
-            <button className="px-8 py-3 rounded-lg border border-black/20 text-black font-semibold hover:bg-black/5 transition-all duration-300">
+            <Button size="lg" variant="outline">
               Watch Demo
-            </button>
+            </Button>
           </div>
 
           {/* Trust Badges */}
           <div
-            className="pt-12 border-t border-black/10 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-black/60 animate-slide-up"
+            className="pt-12 border-t border-black/10 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-foreground/60 animate-slide-up"
             style={{ animationDelay: "0.3s" }}
           >
             <div className="flex items-center gap-2">
@@ -103,14 +101,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Grid */}
       <section className="py-20 px-6 bg-black/2">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Everything you need
             </h2>
-            <p className="text-lg text-black/60">
+            <p className="text-lg text-foreground/60">
               Powerful features designed for campaign management at scale
             </p>
           </div>
@@ -158,14 +155,14 @@ export default function Home() {
               return (
                 <div
                   key={idx}
-                  className="p-8 rounded-xl border border-black/10 bg-white hover:border-primary/30 hover:shadow-lg transition-all duration-300 animate-slide-up"
+                  className="p-8 rounded-xl border border-black/10 bg-card hover:border-primary/30 hover:shadow-lg transition-all duration-300 animate-slide-up"
                   style={{ animationDelay: `${idx * 0.05}s` }}
                 >
                   <Icon className="w-8 h-8 text-primary mb-4" />
                   <h3 className="text-lg font-semibold mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-black/60">{feature.description}</p>
+                  <p className="text-foreground/60">{feature.description}</p>
                 </div>
               );
             })}
@@ -180,7 +177,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               How it works
             </h2>
-            <p className="text-lg text-black/60">
+            <p className="text-lg text-foreground/60">
               Get started in minutes, not days
             </p>
           </div>
@@ -218,7 +215,9 @@ export default function Home() {
                     {item.step}
                   </div>
                   <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                  <p className="text-black/60 text-sm">{item.description}</p>
+                  <p className="text-foreground/60 text-sm">
+                    {item.description}
+                  </p>
                 </div>
                 {idx < 3 && (
                   <div className="hidden md:block absolute top-6 -right-4 text-primary/30">
@@ -259,9 +258,8 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
             Ready to transform your campaigns?
           </h2>
-          <p className="text-lg text-black/60">
-            Join hundreds of teams managing campaigns efficiently with
-            CampaignHub
+          <p className="text-lg text-foreground/60">
+            Join hundreds of teams managing campaigns efficiently with RingoAI
           </p>
           <SignUpButton mode="modal">
             <Button
@@ -276,18 +274,18 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-black/10 py-12 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-black/60">
-          <div className="text-2xl font-bold text-black mb-4 md:mb-0">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-foreground/60">
+          <div className="text-2xl font-bold text-foreground mb-4 md:mb-0">
             Campaign<span className="text-primary">Hub</span>
           </div>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-black transition-colors">
+            <a href="#" className="hover:text-foreground transition-colors">
               Privacy
             </a>
-            <a href="#" className="hover:text-black transition-colors">
+            <a href="#" className="hover:text-foreground transition-colors">
               Terms
             </a>
-            <a href="#" className="hover:text-black transition-colors">
+            <a href="#" className="hover:text-foreground transition-colors">
               Contact
             </a>
           </div>
