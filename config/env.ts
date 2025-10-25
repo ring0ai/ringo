@@ -7,6 +7,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     CLERK_SECRET_KEY: z.string().min(8),
+    DATABASE_URL: z.string()
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(8),
@@ -16,6 +17,7 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NODE_ENV: process.env.NODE_ENV,
+    DATABASE_URL: process.env.DATABASE_URL,
   },
   emptyStringAsUndefined: true,
 });
