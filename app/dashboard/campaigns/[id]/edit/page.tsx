@@ -20,16 +20,15 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import type { Campaign } from "@/lib/types";
+import { useAuth } from "@clerk/nextjs";
 
 export default function EditCampaignPage() {
+  const {userId} = useAuth();
   const router = useRouter();
   const params = useParams();
   const campaignId = params.id as string;
   const [isLoading, setIsLoading] = useState(false);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [clients, setClients] = useState(getClients());
-  const [showNewClient, setShowNewClient] = useState(false);
-  const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -45,7 +44,6 @@ export default function EditCampaignPage() {
     const foundCampaign = getCampaignById(campaignId);
     if (foundCampaign) {
       setCampaign(foundCampaign);
-      setPhoneNumbers(foundCampaign.targetNumbers);
       setFormData({
         name: foundCampaign.name,
         description: foundCampaign.description,
@@ -68,31 +66,14 @@ export default function EditCampaignPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePhoneNumberChange = (index: number, value: string) => {
-    const newNumbers = [...phoneNumbers];
-    newNumbers[index] = value;
-    setPhoneNumbers(newNumbers);
-  };
-
-  const addPhoneNumberField = () => {
-    setPhoneNumbers([...phoneNumbers, ""]);
-  };
-
-  const removePhoneNumberField = (index: number) => {
-    setPhoneNumbers(phoneNumbers.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const targetNumbers = phoneNumbers.filter((num) => num.trim());
-
       if (
         !formData.name ||
-        !formData.campaignText ||
-        targetNumbers.length === 0
+        !formData.description
       ) {
         alert("Please fill in all required fields");
         return;
@@ -100,24 +81,6 @@ export default function EditCampaignPage() {
 
       let clientId = formData.clientId;
       let clientName = formData.clientName;
-
-      if (showNewClient) {
-        if (
-          !formData.newClientName ||
-          !formData.newClientEmail ||
-          !formData.newClientPhone
-        ) {
-          alert("Please fill in all client details");
-          return;
-        }
-        const newClient = addClient({
-          name: formData.newClientName,
-          email: formData.newClientEmail,
-          phone: formData.newClientPhone,
-        });
-        clientId = newClient.id;
-        clientName = newClient.name;
-      }
 
       if (!clientId) {
         alert("Please select or create a client");
@@ -130,9 +93,7 @@ export default function EditCampaignPage() {
           description: formData.description,
           clientId,
           clientName,
-          campaignText: formData.campaignText,
-          targetNumbers,
-          totalNumbers: targetNumbers.length,
+          campaignText: formData.campaignText
         });
       }
 
@@ -144,7 +105,7 @@ export default function EditCampaignPage() {
     }
   };
 
-  if (!auth.isAuthenticated || !campaign) {
+  if (!userId || !campaign) {
     return null;
   }
 
@@ -213,72 +174,12 @@ export default function EditCampaignPage() {
                 />
               </div>
 
-              <div className="space-y-4 p-4 border border-border/50 rounded-lg bg-muted/20">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-foreground">
-                    Select Client *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewClient(!showNewClient)}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    {showNewClient ? "Select Existing" : "Create New"}
-                  </button>
-                </div>
-
-                {!showNewClient ? (
-                  <select
-                    name="clientId"
-                    value={formData.clientId}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                    className="w-full px-3 py-2 border border-primary/30 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                  >
-                    <option value="">Choose a client...</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="space-y-3">
-                    <Input
-                      name="newClientName"
-                      placeholder="Client Name"
-                      value={formData.newClientName}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="border-primary/30 focus:border-primary focus:ring-primary"
-                    />
-                    <Input
-                      name="newClientEmail"
-                      placeholder="Client Email"
-                      type="email"
-                      value={formData.newClientEmail}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="border-primary/30 focus:border-primary focus:ring-primary"
-                    />
-                    <Input
-                      name="newClientPhone"
-                      placeholder="Client Phone"
-                      value={formData.newClientPhone}
-                      onChange={handleChange}
-                      disabled={isLoading}
-                      className="border-primary/30 focus:border-primary focus:ring-primary"
-                    />
-                  </div>
-                )}
-              </div>
-
               <div className="space-y-2">
                 <label
                   htmlFor="campaignText"
                   className="text-sm font-medium text-foreground"
                 >
-                  Campaign Text (Script) *
+                  Prompt for AI (Script)
                 </label>
                 <textarea
                   id="campaignText"
@@ -290,47 +191,6 @@ export default function EditCampaignPage() {
                   className="w-full px-3 py-2 border border-primary/30 rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                   rows={5}
                 />
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-foreground">
-                    Target Phone Numbers *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={addPhoneNumberField}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    + Add Number
-                  </button>
-                </div>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {phoneNumbers.map((number, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        placeholder={`Phone number ${index + 1}`}
-                        value={number}
-                        onChange={(e) =>
-                          handlePhoneNumberChange(index, e.target.value)
-                        }
-                        disabled={isLoading}
-                        className="border-primary/30 focus:border-primary focus:ring-primary"
-                      />
-                      {phoneNumbers.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removePhoneNumberField(index)}
-                          className="border-red-300 text-red-600 hover:bg-red-50"
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
               </div>
 
               <div className="flex gap-4">

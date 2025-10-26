@@ -1,12 +1,12 @@
 import { relations } from "drizzle-orm";
 import { campaignsTable } from "./campaign";
-import { campaignContactsTable } from "./campaignContacts";
+import { campaignContactsTable } from "./campaignContact";
 import { contactsTable } from "./contact";
 
-export const contactCampaignsRelation = relations(
+export const campaignContactsRelation = relations(
   campaignsTable,
   ({ many }) => ({
-    contactCampaign: many(campaignsTable),
+    campaignContacts: many(campaignContactsTable),
   }),
 );
 
@@ -24,6 +24,6 @@ export const campaignContactsCampaignRelation = relations(
   }),
 );
 
-export const campaignContactRelation = relations(contactsTable, ({ many }) => ({
-  campaignContacts: many(campaignContactsTable),
+export const contactCampaignsRelation = relations(contactsTable, ({ many }) => ({
+  contactCampaigns: many(campaignContactsTable),
 }));

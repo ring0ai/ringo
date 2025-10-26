@@ -67,3 +67,7 @@ export function createUnauthorizedResponse(message = 'Authentication required'):
     message,
   };
 }
+
+export type InferSuccessData<F> = F extends (...args: any[]) => ApiResponse<infer T>
+  ? T
+  : never;

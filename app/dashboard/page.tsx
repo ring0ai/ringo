@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { getCampaigns } from "@/lib/campaign-store";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,20 +12,50 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { StatCardWithChart } from "@/components/stat-card-with-chart";
+import { getCampaigns } from "./actions";
+import { useAuth } from "@clerk/nextjs";
+import { campaignsTable } from "@/db/schemas";
+import { InferSuccessData } from "@/lib/api-response";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const campaigns = getCampaigns();
+  const { userId } = useAuth();
+  // const campaigns = getCampaigns();
+  const [campaigns, setCampaigns] = useState<InferSuccessData<typeof getCampaigns>>();
   const [sortBy, setSortBy] = useState<"name" | "status" | "completion">(
-    "name",
+    "name"
   );
 
-  const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
-  const completedCalls = campaigns.reduce(
-    (sum, c) => sum + c.completedCalls,
-    0,
-  );
-  const queuedCalls = campaigns.reduce((sum, c) => sum + c.queuedCalls, 0);
+  useEffect(() => {
+    async function fetchCampaigns() {
+      if (!userId) {
+        alert("Please sign in to view your campaigns");
+        return;
+      }
+
+      const response = await getCampaigns({ userId });
+      if ("error" in response) {
+        return alert(response.error);
+      }
+
+      console.log(response.data)
+
+      setCampaigns(response.data);
+    }
+    fetchCampaigns();
+  }, []);
+
+  // const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
+  const totalNumbers = 100;
+
+  // const completedCalls = campaigns.reduce(
+  //   (sum, c) => sum + c.completedCalls,
+  //   0,
+  // );
+  const completedCalls = 100;
+
+  // const queuedCalls = campaigns.reduce((sum, c) => sum + c.queuedCalls, 0);
+  const queuedCalls = 100;
 
   const callStatusData = [
     { name: "Completed", value: completedCalls, fill: "#22c55e" },
@@ -41,13 +70,13 @@ export default function DashboardPage() {
     { date: "Fri", calls: 18 },
   ];
 
-  const sortedCampaigns = [...campaigns].sort((a, b) => {
-    if (sortBy === "name") return a.name.localeCompare(b.name);
-    if (sortBy === "status") return a.status.localeCompare(b.status);
-    const aRate = a.completedCalls / a.totalNumbers;
-    const bRate = b.completedCalls / b.totalNumbers;
-    return bRate - aRate;
-  });
+  // const sortedCampaigns = [...campaigns].sort((a, b) => {
+  //   if (sortBy === "name") return a.name.localeCompare(b.name);
+  //   if (sortBy === "status") return a.status.localeCompare(b.status);
+  //   const aRate = a.completedCalls / a.totalNumbers;
+  //   const bRate = b.completedCalls / b.totalNumbers;
+  //   return bRate - aRate;
+  // });
 
   return (
     <main className="min-h-screen bg-background">
@@ -103,139 +132,143 @@ export default function DashboardPage() {
         </div>
 
         {/* Campaigns Table */}
-        <Card className="border-border/50">
-          <CardHeader className="border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>All Campaigns</CardTitle>
-                <CardDescription>
-                  Manage and monitor your active campaigns
-                </CardDescription>
+        {campaigns && (
+          <Card className="border-border/50">
+            <CardHeader className="border-b border-border/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>All Campaigns</CardTitle>
+                  <CardDescription>
+                    Manage and monitor your active campaigns
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="px-3 py-2 rounded-lg border border-border/50 bg-background text-sm text-foreground hover:border-primary/50 transition-colors"
+                  >
+                    <option value="name">Sort by Name</option>
+                    <option value="status">Sort by Status</option>
+                    <option value="completion">Sort by Completion</option>
+                  </select>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="px-3 py-2 rounded-lg border border-border/50 bg-background text-sm text-foreground hover:border-primary/50 transition-colors"
-                >
-                  <option value="name">Sort by Name</option>
-                  <option value="status">Sort by Status</option>
-                  <option value="completion">Sort by Completion</option>
-                </select>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {campaigns.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">No campaigns yet</p>
-                <Link href="/dashboard/campaigns/new">
-                  <Button variant="outline">Create your first campaign</Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border/50 bg-muted/30">
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Campaign Name
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Client
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Progress
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Total / Completed
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Created
-                      </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedCampaigns.map((campaign) => {
-                      const completionRate = Math.round(
-                        (campaign.completedCalls / campaign.totalNumbers) * 100,
-                      );
-                      return (
-                        <tr
-                          key={campaign.id}
-                          className="border-b border-border/30 hover:bg-muted/30 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            <div className="font-semibold text-foreground">
-                              {campaign.name}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {campaign.description}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-foreground">
-                            {campaign.clientName}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                                campaign.status === "active"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                                  : campaign.status === "paused"
+            </CardHeader>
+            <CardContent className="p-0">
+              {campaigns.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground mb-4">No campaigns yet</p>
+                  <Link href="/dashboard/campaigns/new">
+                    <Button variant="outline">
+                      Create your first campaign
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border/50 bg-muted/30">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Campaign Name
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Status
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Progress
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Total / Completed
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Created
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {campaigns.map((campaign) => {
+                        const totalNumbers = campaign.campaignContacts.length
+                        const completionRate = 100
+                        // const completionRate = Math.round(
+                        //   (campaign.completedCalls / campaign.totalNumbers) *
+                        //     100
+                        // );
+                        return (
+                          <tr
+                            key={campaign.id}
+                            className="border-b border-border/30 hover:bg-muted/30 transition-colors"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="font-semibold text-foreground">
+                                {campaign.title}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {campaign.description}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                  campaign.status === "active"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                                    : campaign.status === "paused"
                                     ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
                                     : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
-                              }`}
-                            >
-                              {campaign.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="w-32">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-medium text-foreground">
-                                  {completionRate}%
-                                </span>
-                              </div>
-                              <div className="w-full bg-muted rounded-full h-2">
-                                <div
-                                  className="bg-primary h-2 rounded-full transition-all"
-                                  style={{ width: `${completionRate}%` }}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-foreground">
-                            {campaign.completedCalls} / {campaign.totalNumbers}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-muted-foreground">
-                            {campaign.createdAt.toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4">
-                            <Link href={`/dashboard/campaigns/${campaign.id}`}>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-primary/30 hover:bg-primary/5 bg-transparent"
+                                }`}
                               >
-                                View
-                              </Button>
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                                {campaign.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="w-32">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium text-foreground">
+                                    {completionRate}%
+                                  </span>
+                                </div>
+                                <div className="w-full bg-muted rounded-full h-2">
+                                  <div
+                                    className="bg-primary h-2 rounded-full transition-all"
+                                    style={{ width: `${completionRate}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-foreground">
+                              {campaign.completedCalls} /{" "}
+                              {totalNumbers}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-muted-foreground">
+                              {campaign.createdAt.toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4">
+                              <Link
+                                href={`/dashboard/campaigns/${campaign.id}`}
+                              >
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-primary/30 hover:bg-primary/5 bg-transparent"
+                                >
+                                  View
+                                </Button>
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </main>
   );

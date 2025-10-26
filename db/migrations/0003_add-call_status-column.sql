@@ -1,0 +1,2 @@
+CREATE TYPE "public"."call_status" AS ENUM('idle', 'queued', 'in-progress', 'completed');--> statement-breakpoint
+ALTER TABLE "campaign_contacts" ADD COLUMN "call_status" "call_status" DEFAULT 'idle' NOT NULL;
