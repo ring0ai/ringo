@@ -4,17 +4,17 @@
  */
 
 export type ResponseCode =
-  | 'SUCCESS'
-  | 'ERROR'
-  | 'VALIDATION_ERROR'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'INTERNAL_ERROR';
+  | "SUCCESS"
+  | "ERROR"
+  | "VALIDATION_ERROR"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "INTERNAL_ERROR";
 
 export type ApiResponse<T = any> =
   | {
-      code: 'SUCCESS';
+      code: "SUCCESS";
       data: T;
       message: string;
     }
@@ -27,10 +27,10 @@ export type ApiResponse<T = any> =
 // Success response helper
 export function createSuccessResponse<T>(
   data: T,
-  message = 'Operation completed successfully'
+  message = "Operation completed successfully",
 ): ApiResponse<T> {
   return {
-    code: 'SUCCESS',
+    code: "SUCCESS",
     data,
     message,
   };
@@ -39,8 +39,8 @@ export function createSuccessResponse<T>(
 // Error response helpers
 export function createErrorResponse(
   error: string,
-  code: ResponseCode = 'ERROR',
-  message = 'An error occurred'
+  code: ResponseCode = "ERROR",
+  message = "An error occurred",
 ): ApiResponse<never> {
   return {
     code,
@@ -51,19 +51,27 @@ export function createErrorResponse(
 
 export function createValidationErrorResponse(
   error: string,
-  message = 'Validation failed'
+  message = "Validation failed",
 ): ApiResponse {
   return {
-    code: 'VALIDATION_ERROR',
+    code: "VALIDATION_ERROR",
     error,
     message,
   };
 }
 
-export function createUnauthorizedResponse(message = 'Authentication required'): ApiResponse {
+export function createUnauthorizedResponse(
+  message = "Authentication required",
+): ApiResponse {
   return {
-    code: 'UNAUTHORIZED',
-    error: 'User not authenticated',
-    message,
-  };
+    code: "UNAUTHORIZED",
+    error: "User not authenticated",
+    message,
+  };
 }
+
+export type InferSuccessData<F> = F extends (
+  ...args: any[]
+) => ApiResponse<infer T>
+  ? T
+  : never;

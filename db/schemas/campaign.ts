@@ -1,6 +1,11 @@
 import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const campaignStatusEnum = pgEnum("campaign_status", ["inactive", "active", "paused", "completed"])
+export const campaignStatusEnum = pgEnum("campaign_status", [
+  "inactive",
+  "active",
+  "paused",
+  "completed",
+]);
 
 export const campaignsTable = pgTable("campaigns", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -10,5 +15,9 @@ export const campaignsTable = pgTable("campaigns", {
   prompt: text("prompt"),
   status: campaignStatusEnum("status").notNull().default("inactive"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date())
-})
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+

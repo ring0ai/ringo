@@ -13,8 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { createCampaign } from "./action";
 import { useAuth, useUser } from "@clerk/nextjs";
+import { createCampaign } from "@/lib/server-functions/campaign";
 
 export default function NewCampaignPage() {
   const { userId } = useAuth();
@@ -57,7 +57,6 @@ export default function NewCampaignPage() {
         alert("Please fill in all required fields");
         return;
       }
-
 
       const response = await createCampaign({
         title: formData.name,

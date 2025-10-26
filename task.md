@@ -2,9 +2,9 @@
 
 ## Bhaskar
 
-- [] drizzle setup with neon postgress
+- [x] drizzle setup with neon postgress
 - [] create the schema add migration helpers
-- [] setup drizzle studio
+- [x] setup drizzle studio
 
 ## Sanket
 

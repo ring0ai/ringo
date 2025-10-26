@@ -15,6 +15,20 @@
       "when": 1761344231095,
       "tag": "0001_add-status-column",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761395547449,
+      "tag": "0002_peaceful_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761406932279,
+      "tag": "0003_add-call_status-column",
+      "breakpoints": true
     }
   ]
 }
