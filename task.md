@@ -16,3 +16,5 @@
 
 - [] call keep sdk setup
 - [] start a call programatically
+- [] add and playground page, user can can type a text -> send text to ai -> get response stream -> convert that to audio play that audio
+- [] setup nextjs with websocket and deploy

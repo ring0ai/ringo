@@ -8,6 +8,7 @@ export const env = createEnv({
       .default("development"),
     CLERK_SECRET_KEY: z.string().min(8),
     DATABASE_URL: z.string(),
+    SARVAM_API_KEY: z.string().min(8),
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(8),
@@ -18,6 +19,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     NODE_ENV: process.env.NODE_ENV,
     DATABASE_URL: process.env.DATABASE_URL,
+    SARVAM_API_KEY: process.env.SARVAM_API_KEY,
   },
   emptyStringAsUndefined: true,
 });
