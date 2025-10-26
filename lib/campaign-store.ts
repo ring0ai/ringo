@@ -98,10 +98,6 @@ export function addClient(client: Omit<Client, "id" | "createdAt">): Client {
   return newClient
 }
 
-export function getCampaigns(): Campaign[] {
-  return mockCampaigns
-}
-
 export function getCampaignById(id: string): Campaign | undefined {
   return mockCampaigns.find((c) => c.id === id)
 }

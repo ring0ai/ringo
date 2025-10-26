@@ -12,15 +12,14 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { StatCardWithChart } from "@/components/stat-card-with-chart";
-import { getCampaigns } from "./actions";
-import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
+import { getCampaigns } from "@/lib/server-functions/campaign";
 
-const useCampaigns = ({ userId }: { userId: string }) => {
+const useCampaigns = () => {
   return useQuery({
     queryKey: ["campaigns"],
     queryFn: async () => {
-      const campaigns = await getCampaigns({ userId });
+      const campaigns = await getCampaigns();
       if ("error" in campaigns) {
         throw new Error(campaigns.error);
       }
@@ -31,15 +30,14 @@ const useCampaigns = ({ userId }: { userId: string }) => {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { userId } = useAuth();
   const [sortBy, setSortBy] = useState<"name" | "status" | "completion">(
-    "name",
+    "name"
   );
   const {
     data: campaigns,
     isLoading,
     error,
-  } = useCampaigns({ userId: userId || "" });
+  } = useCampaigns();
 
   // const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
   const totalNumbers = 100;
@@ -174,7 +172,7 @@ export default function DashboardPage() {
                           Progress
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
-                          Total / Completed
+                          Completed / Total
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">
                           Created
@@ -186,8 +184,14 @@ export default function DashboardPage() {
                     </thead>
                     <tbody>
                       {campaigns.map((campaign) => {
-                        const totalNumbers = campaign.campaignContacts.length;
-                        const completionRate = 100;
+                        const completionRate =
+                          campaign.totalNumbers == 0
+                            ? 0
+                            : Math.round(
+                                (campaign.completedCalls /
+                                  campaign.totalNumbers) *
+                                  100
+                              );
                         // const completionRate = Math.round(
                         //   (campaign.completedCalls / campaign.totalNumbers) *
                         //     100
@@ -211,8 +215,8 @@ export default function DashboardPage() {
                                   campaign.status === "active"
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                                     : campaign.status === "paused"
-                                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
                                 }`}
                               >
                                 {campaign.status}
@@ -234,7 +238,8 @@ export default function DashboardPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-sm text-foreground">
-                              {campaign.completedCalls} / {totalNumbers}
+                              {campaign.completedCalls} /{" "}
+                              {campaign.totalNumbers}
                             </td>
                             <td className="px-6 py-4 text-sm text-muted-foreground">
                               {campaign.createdAt.toLocaleDateString()}
