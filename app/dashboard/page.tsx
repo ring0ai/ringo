@@ -21,9 +21,10 @@ export default function DashboardPage() {
   const router = useRouter();
   const { userId } = useAuth();
   // const campaigns = getCampaigns();
-  const [campaigns, setCampaigns] = useState<InferSuccessData<typeof getCampaigns>>();
+  const [campaigns, setCampaigns] =
+    useState<InferSuccessData<typeof getCampaigns>>();
   const [sortBy, setSortBy] = useState<"name" | "status" | "completion">(
-    "name"
+    "name",
   );
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function DashboardPage() {
         return alert(response.error);
       }
 
-      console.log(response.data)
+      console.log(response.data);
 
       setCampaigns(response.data);
     }
@@ -192,8 +193,8 @@ export default function DashboardPage() {
                     </thead>
                     <tbody>
                       {campaigns.map((campaign) => {
-                        const totalNumbers = campaign.campaignContacts.length
-                        const completionRate = 100
+                        const totalNumbers = campaign.campaignContacts.length;
+                        const completionRate = 100;
                         // const completionRate = Math.round(
                         //   (campaign.completedCalls / campaign.totalNumbers) *
                         //     100
@@ -217,8 +218,8 @@ export default function DashboardPage() {
                                   campaign.status === "active"
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                                     : campaign.status === "paused"
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
                                 }`}
                               >
                                 {campaign.status}
@@ -240,8 +241,7 @@ export default function DashboardPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-sm text-foreground">
-                              {campaign.completedCalls} /{" "}
-                              {totalNumbers}
+                              {campaign.completedCalls} / {totalNumbers}
                             </td>
                             <td className="px-6 py-4 text-sm text-muted-foreground">
                               {campaign.createdAt.toLocaleDateString()}

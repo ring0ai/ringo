@@ -10,20 +10,21 @@ interface RequestCampaignDetails {
   userId: string;
   page?: number;
   size?: number;
-  orderBy?: "createdAt" | "title"
+  orderBy?: "createdAt" | "title";
 }
 
 const sortBy = (orderBy: "createdAt" | "title") => {
   switch (orderBy) {
-    case "createdAt": return desc(campaignsTable.createdAt)
+    case "createdAt":
+      return desc(campaignsTable.createdAt);
   }
-}
+};
 
 export const getCampaigns = async ({
   userId,
   page = 1,
   size = 10,
-  orderBy = "createdAt"
+  orderBy = "createdAt",
 }: RequestCampaignDetails) => {
   try {
     const campaigns = await db.query.campaignsTable.findMany({
@@ -38,18 +39,17 @@ export const getCampaigns = async ({
           },
           with: {
             contact: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
-    const response = campaigns.map((campaign)=> {
+    const response = campaigns.map((campaign) => {
       return {
         ...campaign,
-        
-      }
-    })
-    
+      };
+    });
+
     return createSuccessResponse(campaigns);
   } catch (error) {
     const errorMessage =
@@ -58,12 +58,12 @@ export const getCampaigns = async ({
   }
 };
 
-export const getCampaignById = async(campaignId: string, userId: string) => {
+export const getCampaignById = async (campaignId: string, userId: string) => {
   try {
     const campaign = await db.query.campaignsTable.findFirst({
       where: and(
         eq(campaignsTable.id, campaignId),
-        eq(campaignsTable.created_by, userId)
+        eq(campaignsTable.created_by, userId),
       ),
       with: {
         campaignContacts: {
@@ -72,18 +72,19 @@ export const getCampaignById = async(campaignId: string, userId: string) => {
           },
           with: {
             contact: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
     if (!campaign) {
       return createErrorResponse("Campaign not found");
     }
 
     return createSuccessResponse(campaign);
-  } catch(error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage);
   }
-}
+};
