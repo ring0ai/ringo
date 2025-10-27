@@ -1,7 +1,6 @@
 import { env } from "@/config/env";
 import Queue from "bull";
 import { callWorker } from "./workers/callWorker";
-import type { Job } from "bull";
 
 enum TaskType {
   CallWorker = "callWorker",
@@ -29,7 +28,7 @@ class QueueManager {
 
   // Create new queue
   createQueue(name: string, taskType: TaskType): Queue.Queue {
-    if(this.queues.has(name)) {
+    if (this.queues.has(name)) {
       throw new Error(`Queue with name ${name} already exists`);
     }
     const queue = new Queue(name, env.REDIS_URL);
@@ -52,7 +51,7 @@ class QueueManager {
 
     this.queues.set(name, queue);
     console.log(`Queue with name ${name} created`);
-    
+
     return queue;
   }
 }
@@ -60,3 +59,4 @@ class QueueManager {
 export const queueManager = new QueueManager();
 
 export { TaskType };
+
