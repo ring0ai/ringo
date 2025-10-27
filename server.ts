@@ -5,6 +5,7 @@ import { ExpressAdapter } from "@bull-board/express";
 import express from "express";
 import next from "next";
 import dotenv from "dotenv";
+import auth from "basic-auth";
 
 dotenv.config();
 
@@ -28,6 +29,15 @@ async function main() {
   server.use(
     "/admin/queues",
     async (req, res, next) => {
+      const user = auth(req);
+
+      const username = process.env.BULL_QUEUE_USERNAME;
+      const password = process.env.BULL_QUEUE_PASSWORD;
+
+      if (!user || user.name !== username || user.pass !== password) {
+        res.set("WWW-Authenticate", 'Basic realm="Admin Area"');
+        return res.status(401).send("Authentication required.");
+      }
       next();
     },
     serverAdapter.getRouter(),
