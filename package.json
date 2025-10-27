@@ -6,6 +6,7 @@
     "build": "next build --turbopack",
     "dev": "next dev --turbopack",
     "lint": "eslint .",
+    "deploy": "npm install --package-lock-only && fly deploy",
     "start": "next start"
   },
   "dependencies": {

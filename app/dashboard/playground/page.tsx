@@ -1,12 +1,13 @@
 "use client";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { AskAi } from "./AskAi";
 
 const Playground = () => {
-  const [inputText, setInputText] = useState();
   return (
-    <div>
-      <Input />
+    <div className="grid grid-cols-1 md:grid-cols-2 p-6 gap-6 min-h-screen overscroll-y-auto">
+      <AskAi />
+      <div className="border-2  rounded-sm p-4 text-center"></div>
+      <div className="border-2  rounded-sm p-4 text-center"></div>
+      <div className="border-2  rounded-sm p-4 text-center"></div>
     </div>
   );
 };
