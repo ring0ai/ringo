@@ -3,8 +3,12 @@
 ## Bhaskar
 
 - [x] drizzle setup with neon postgress
-- [] create the schema add migration helpers
+- [x] create the schema add migration helpers
 - [x] setup drizzle studio
+- [ ] setup bull queue
+- [ ] setup call agent
+- [ ] setup queue handler
+- [ ] setup webhooks
 
 ## Sanket
 
