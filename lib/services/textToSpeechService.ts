@@ -1,4 +1,4 @@
-import "server-only";
+"use server";
 import sarvamai from "@/config/sarvam";
 
 export const getTextToSpeechService = async (text: string) => {

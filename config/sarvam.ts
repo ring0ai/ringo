@@ -1,3 +1,4 @@
+import "server-only";
 import { env } from "process";
 import { SarvamAIClient } from "sarvamai";
 
