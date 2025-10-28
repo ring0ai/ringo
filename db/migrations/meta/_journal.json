@@ -29,6 +29,13 @@
       "when": 1761406932279,
       "tag": "0003_add-call_status-column",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1761658673661,
+      "tag": "0004_add-queues-table",
+      "breakpoints": true
     }
   ]
 }
