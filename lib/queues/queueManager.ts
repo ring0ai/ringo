@@ -1,14 +1,17 @@
-import { env } from "@/config/env";
+import dotenv from "dotenv";
 import Queue from "bull";
 import { callWorker } from "./workers/callWorker";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import { queuesTable } from "@/db/schemas";
+
+dotenv.config();
 
 enum TaskType {
   CallWorker = "callWorker",
 }
 
 class QueueManager {
-  private queues: Map<string, Queue.Queue> = new Map();
-
   #getWorker(taskType: TaskType) {
     switch (taskType) {
       case TaskType.CallWorker:
@@ -18,21 +21,36 @@ class QueueManager {
     }
   }
 
-  // Get or create a new queue
-  getQueue(name: string): Queue.Queue {
-    if (!this.queues.has(name)) {
+  // Get all queues
+  async getQueues(): Promise<Queue.Queue[]> {
+    const queues = await db.query.queuesTable.findMany();
+    const response = queues.map((queue) => new Queue(queue.name));
+    return response;
+  }
+
+  async getQueue(name: string): Promise<Queue.Queue> {
+    const queue = await db.query.queuesTable.findFirst({
+      where: eq(queuesTable.name, name)
+    });
+
+    if (!queue) {
       throw new Error(`Queue with name ${name} does not exist`);
     }
-    return this.queues.get(name)!;
+    
+    return new Queue(queue.name);
   }
 
   // Create new queue
-  createQueue(name: string, taskType: TaskType): Queue.Queue {
-    if (this.queues.has(name)) {
-      throw new Error(`Queue with name ${name} already exists`);
+  async createQueue(name: string, taskType: TaskType): Promise<Queue.Queue> {
+    const preExistingQueue = await db.query.queuesTable.findFirst({
+      where: eq(queuesTable.name, name)
+    });
+    if (preExistingQueue) {
+      return new Queue(preExistingQueue.name);
     }
-    const queue = new Queue(name, env.REDIS_URL);
 
+    // Create new queue
+    const queue = new Queue(name, process.env.REDIS_URL!);
     queue.on("active", (job) => {
       console.log(`Job ${job.id} is active`);
     });
@@ -49,7 +67,22 @@ class QueueManager {
     const worker = this.#getWorker(taskType);
     worker(queue);
 
-    this.queues.set(name, queue);
+    // Make post API call to localhost:3000/api/internal/queues with name
+    await fetch("http://localhost:3000/api/internal/queues", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+      }),
+    });
+
+    await db.insert(queuesTable).values({
+      name,
+      task_type: taskType
+    });
+  
     console.log(`Queue with name ${name} created`);
 
     return queue;

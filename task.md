@@ -5,9 +5,9 @@
 - [x] drizzle setup with neon postgress
 - [x] create the schema add migration helpers
 - [x] setup drizzle studio
-- [ ] setup bull queue
-- [ ] setup call agent
-- [ ] setup queue handler
+- [x] setup bull queue
+- [x] setup call agent
+- [x] setup queue handler
 - [ ] setup webhooks
 
 ## Sanket

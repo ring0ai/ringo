@@ -6,7 +6,6 @@ import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
 import { currentUser } from "@clerk/nextjs/server";
 import { and, desc, eq } from "drizzle-orm";
 import z from "zod";
-import { queueManager, TaskType } from "../queues/queueManager";
 
 const getCampaignsParamsSchema = z
   .object({
@@ -34,15 +33,8 @@ const sortBy = (orderBy: "createdAt" | "title") => {
 
 export const createCampaign = async (campaign: typeof campaignsTable.$inferInsert) => {
   try {
-    const queue = await queueManager.createQueue("callWorker", TaskType.CallWorker);
-    await queue.add({
-      campaignId: '2bc7bdb3-730c-4046-861d-8fb593f04fe2',
-      contactId: 'b5146bf2-b49a-49a8-bd1b-823ba776aae4',
-      fromNumber: "+14422281166"
-    })
-
-    // const newCampaign = await db.insert(campaignsTable).values(campaign).returning();
-    // return createSuccessResponse(newCampaign)
+    const newCampaign = await db.insert(campaignsTable).values(campaign).returning();
+    return createSuccessResponse(newCampaign)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage)

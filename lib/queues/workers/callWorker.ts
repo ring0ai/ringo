@@ -1,9 +1,11 @@
-import { env } from "@/config/env";
+import dotenv from "dotenv";
 import { db } from "@/db";
 import { campaignContactsTable, contactsTable } from "@/db/schemas";
 import { Queue } from "bull";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
+
+dotenv.config();
 
 export const callWorker = (queue: Queue) => {
   queue.process(1, async (job, done) => {
@@ -28,8 +30,8 @@ export const callWorker = (queue: Queue) => {
 
       // Call the client
       const client = require("twilio")(
-        env.TWILIO_ACCOUNT_SID,
-        env.TWILIO_AUTH_TOKEN
+        process.env.TWILIO_ACCOUNT_SID!,
+        process.env.TWILIO_AUTH_TOKEN!
       );
 
       const twiml = `
@@ -37,7 +39,7 @@ export const callWorker = (queue: Queue) => {
         <Response>
           <Say language="en">"This call may be monitored or recorded for quality purposes"</Say>
           <Connect>
-            <Stream url="wss://${env.API_BASE_URL}/api/campaigns/${campaignId}/calls/${contact.id}" />
+            <Stream url="wss://${process.env.API_BASE_URL}/api/campaigns/${campaignId}/calls/${contact.id}" />
           </Connect>
         </Response>
       `;
