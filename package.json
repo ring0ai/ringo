@@ -7,7 +7,7 @@
     "dev": "tsx server.ts",
     "lint": "eslint .",
     "deploy": "npm install --package-lock-only && fly deploy",
-    "start": "NODE_ENV=production tsx server.js"
+    "start": "NODE_ENV=production tsx server.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.23",
@@ -72,6 +72,7 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.20.6",
     "twilio": "^5.10.3",
     "zod": "3.25.76"
   },
@@ -85,7 +86,6 @@
     "drizzle-kit": "^0.31.5",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
-    "tsx": "^4.20.6",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }
