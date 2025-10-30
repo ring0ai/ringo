@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import MasterLayout from '@/components/layout/MasterLayout';
-
+ 
 export default function Home() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
