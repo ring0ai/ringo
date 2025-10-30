@@ -9,6 +9,7 @@ import auth from "basic-auth";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { queueManager } from "./lib/queues/queueManager";
+import { createClient } from "redis"
 
 dotenv.config();
 
@@ -71,16 +72,33 @@ async function main() {
     serverAdapter.getRouter()
   );
 
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+  app.get("/api/health", async (req, res) => {
+    // Check redis connection
+    const redisClient = createClient({
+      url: process.env.REDIS_URL,
+    });
+
+    redisClient.on("error", (err) => {
+      console.error("Redis connection error:", err);
+      res.status(500).json({ message: "Redis connection error" });
+    });
+
+    const ping = await redisClient.ping();
+
+    res.json({ status: "ok", redis: ping === "PONG" });
   });
 
   // API endpoint to update queues
   app.post("/api/internal/queues", localhostOnly,  async (req, res) => {
     console.log("🔌 Queues updated:", req.body);
-    const queue = new Queue(req.body.name);
-    addQueue(new BullAdapter(queue));
-    res.json({ message: `Queue ${req.body.name} created successfully` });
+    try {
+      const queue = new Queue(req.body.name);
+      addQueue(new BullAdapter(queue));
+      res.status(201).json({ message: "Queue created successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to create queue" });
+    }
   });
 
   //NOTE: web this part manages next js

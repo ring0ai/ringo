@@ -42,12 +42,15 @@ class QueueManager {
 
   // Create new queue
   async createQueue(name: string, taskType: TaskType): Promise<Queue.Queue> {
+    console.log("create queue called");
     const preExistingQueue = await db.query.queuesTable.findFirst({
       where: eq(queuesTable.name, name)
     });
     if (preExistingQueue) {
+      console.log("queue already exists");
       return new Queue(preExistingQueue.name);
     }
+    console.log("queue does not exist");
 
     // Create new queue
     const queue = new Queue(name, process.env.REDIS_URL!);
@@ -67,8 +70,9 @@ class QueueManager {
     const worker = this.#getWorker(taskType);
     worker(queue);
 
+    console.log("queue created");
     // Make post API call to localhost:3000/api/internal/queues with name
-    await fetch("http://localhost:3000/api/internal/queues", {
+    const response = await fetch("http://localhost:3000/api/internal/queues", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,6 +81,10 @@ class QueueManager {
         name,
       }),
     });
+    console.log("post api called");
+    if (response.status !== 201) {
+      throw new Error("Failed to create queue");
+    }
 
     await db.insert(queuesTable).values({
       name,

@@ -2,13 +2,10 @@
 
 ## Bhaskar
 
-- [x] drizzle setup with neon postgress
-- [x] create the schema add migration helpers
-- [x] setup drizzle studio
-- [x] setup bull queue
-- [x] setup call agent
-- [x] setup queue handler
-- [ ] setup webhooks
+- [ ] Connect incoming call to deepgram
+  - [ ] Feed the campaign prompt as a prompt to deepgram
+- [ ] Update infrastructure to use BullMQ instead of Bull
+  - [ ] Have a separate Redis instance and a separate worker instance
 
 ## Sanket
 
