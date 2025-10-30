@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,32 +12,14 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { StatCardWithChart } from "@/components/stat-card-with-chart";
-import { useQuery } from "@tanstack/react-query";
-import { getCampaigns } from "@/lib/server-functions/campaign";
-
-const useCampaigns = () => {
-  return useQuery({
-    queryKey: ["campaigns"],
-    queryFn: async () => {
-      const campaigns = await getCampaigns();
-      if ("error" in campaigns) {
-        throw new Error(campaigns.error);
-      }
-      return campaigns.data;
-    },
-  });
-};
+import useCampaignsList from "@/hooks/query/useCampaingsList";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [sortBy, setSortBy] = useState<"name" | "status" | "completion">(
-    "name"
+    "name",
   );
-  const {
-    data: campaigns,
-    isLoading,
-    error,
-  } = useCampaigns();
+  const { data: campaigns, isLoading, error } = useCampaignsList();
 
   // const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
   const totalNumbers = 100;
@@ -190,7 +172,7 @@ export default function DashboardPage() {
                             : Math.round(
                                 (campaign.completedCalls /
                                   campaign.totalNumbers) *
-                                  100
+                                  100,
                               );
                         // const completionRate = Math.round(
                         //   (campaign.completedCalls / campaign.totalNumbers) *
@@ -215,8 +197,8 @@ export default function DashboardPage() {
                                   campaign.status === "active"
                                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                                     : campaign.status === "paused"
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                                      ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
                                 }`}
                               >
                                 {campaign.status}
