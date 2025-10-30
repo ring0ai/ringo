@@ -6,6 +6,7 @@ import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
 import { currentUser } from "@clerk/nextjs/server";
 import { and, desc, eq } from "drizzle-orm";
 import z from "zod";
+import { CreateCampaignSchema } from "../validators";
 
 const getCampaignsParamsSchema = z
   .object({
@@ -22,7 +23,7 @@ const getCampaignsParamsSchema = z
 
 const getCampaignDetailsParamsSchema = z.object({
   campaignId: z.string().uuid(),
-})
+});
 
 const sortBy = (orderBy: "createdAt" | "title") => {
   switch (orderBy) {
@@ -31,17 +32,32 @@ const sortBy = (orderBy: "createdAt" | "title") => {
   }
 };
 
-export const createCampaign = async (campaign: typeof campaignsTable.$inferInsert) => {
+export const createCampaign = async (campaign: CreateCampaignSchema) => {
   try {
-    const newCampaign = await db.insert(campaignsTable).values(campaign).returning();
-    return createSuccessResponse(newCampaign)
+    const user = await currentUser();
+    if (!user) {
+      return createErrorResponse("User not found", "UNAUTHORIZED");
+    }
+    const newCampaign = await db
+      .insert(campaignsTable)
+      .values({
+        title: campaign.title,
+        description: campaign.description,
+        prompt: campaign.prompt,
+        created_by: user.id,
+      })
+      .returning();
+    return createSuccessResponse(newCampaign);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return createErrorResponse(errorMessage)
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return createErrorResponse(errorMessage);
   }
-}
+};
 
-export const getCampaigns = async (_params?: z.infer<typeof getCampaignsParamsSchema>) => {
+export const getCampaigns = async (
+  _params?: z.infer<typeof getCampaignsParamsSchema>,
+) => {
   try {
     const user = await currentUser();
     if (!user) {
@@ -72,7 +88,7 @@ export const getCampaigns = async (_params?: z.infer<typeof getCampaignsParamsSc
         ...campaign,
         completedCalls: campaign.campaignContacts.reduce(
           (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
-          0
+          0,
         ),
         totalNumbers: campaign.campaignContacts.length,
       };
@@ -86,10 +102,12 @@ export const getCampaigns = async (_params?: z.infer<typeof getCampaignsParamsSc
   }
 };
 
-export const getCampaignDetails = async (_params?: z.infer<typeof getCampaignDetailsParamsSchema>) => {
+export const getCampaignDetails = async (
+  _params?: z.infer<typeof getCampaignDetailsParamsSchema>,
+) => {
   try {
     const user = await currentUser();
-    if(!user) {
+    if (!user) {
       return createErrorResponse("User not found", "UNAUTHORIZED");
     }
 
@@ -98,7 +116,7 @@ export const getCampaignDetails = async (_params?: z.infer<typeof getCampaignDet
     const campaign = await db.query.campaignsTable.findFirst({
       where: and(
         eq(campaignsTable.id, params.campaignId),
-        eq(campaignsTable.created_by, user.id)
+        eq(campaignsTable.created_by, user.id),
       ),
       with: {
         campaignContacts: {
