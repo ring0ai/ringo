@@ -73,10 +73,14 @@ async function main() {
   );
 
   app.get("/api/health", async (req, res) => {
+    console.log(`Redis URL: ${process.env.REDIS_URL}`);
     // Check redis connection
     const redisClient = createClient({
       url: process.env.REDIS_URL,
     });
+    if(!redisClient.isOpen) {
+      await redisClient.connect();
+    }
 
     redisClient.on("error", (err) => {
       console.error("Redis connection error:", err);
