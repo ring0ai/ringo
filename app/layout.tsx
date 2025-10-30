@@ -1,20 +1,20 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import Providers from "@/components/Layout/Providers";
+import Providers from '@/components/layout/Providers';
+import { ClerkProvider } from '@clerk/nextjs';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import type React from 'react';
+import './globals.css';
 
 const montserrat = Inter({
-  subsets: ["latin"],
-  variable: "--font-montserrat",
-  display: "swap",
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "RingoAI - AI-powered customer support",
+  title: 'RingoAI - AI-powered customer support',
   description:
-    "Manage customer support with AI-powered chatbots and AI-assisted agents",
+    'Manage customer support with AI-powered chatbots and AI-assisted agents',
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={montserrat.className}>
+      <html lang='en' className={montserrat.className}>
         <body className={`font-sans antialiased`}>
           <Providers>{children}</Providers>
         </body>
