@@ -72,7 +72,7 @@ class QueueManager {
 
     console.log("queue created");
     // Make post API call to localhost:3000/api/internal/queues with name
-    const response = await fetch("http://localhost:3000/api/internal/queues", {
+    const response = await fetch(`${process.env.API_BASE_URL}/api/internal/queues`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
