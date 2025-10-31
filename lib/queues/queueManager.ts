@@ -76,6 +76,7 @@ class QueueManager {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.LOCAL_API_KEY!,
       },
       body: JSON.stringify({
         name,

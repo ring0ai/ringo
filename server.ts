@@ -29,19 +29,15 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 /**\
  * @dev This middleware function will be used by the defined Express router to ensure that its called only from the localhost
  */
-const localhostOnly = (req: any, res: any, next: any) => {
-  const ip = req.ip || req.connection.remoteAddress;
-  const isLocalhost =
-    ip.startsWith("127.0.0.1") ||
-    ip.startsWith("::1") ||
-    ip === "::ffff:127.0.0.1" ||
-    ip === "localhost";
-
-  if (!isLocalhost) {
-    return res.status(403).send("Forbidden");
+const verifyAPIKey = (req: any, res: any, next: any) => {
+  const apiKey = process.env.LOCAL_API_KEY;
+  const apiKeyHeader = req.headers["x-api-key"];
+  if (apiKey !== apiKeyHeader) {
+    console.log("Invalid API key");
+    return res.status(401).send("Unauthorized");
   }
   next();
-};
+}
 
 async function main() {
   await nextApp.prepare();
@@ -93,7 +89,7 @@ async function main() {
   });
 
   // API endpoint to update queues
-  app.post("/api/internal/queues", localhostOnly,  async (req, res) => {
+  app.post("/api/internal/queues", verifyAPIKey,  async (req, res) => {
     console.log("🔌 Queues updated:", req.body);
     try {
       const queue = new Queue(req.body.name);
