@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   HelpCircle,
   Bell,
@@ -13,11 +13,11 @@ import {
   Moon,
   LayoutDashboard,
   Megaphone,
-} from 'lucide-react';
+} from "lucide-react";
 
 const Header = ({
-  currentPage = 'Dashboard',
-  user = { name: 'John Doe', email: 'john@example.com', avatar: null },
+  currentPage = "Dashboard",
+  user = { name: "John Doe", email: "john@example.com", avatar: null },
 }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -27,25 +27,62 @@ const Header = ({
 
   // Navigation items
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'campaigns', label: 'Campaigns', icon: Megaphone, path: '/campaigns' },
-    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      path: "/dashboard",
+    },
+    {
+      id: "campaigns",
+      label: "Campaigns",
+      icon: Megaphone,
+      path: "/campaigns",
+    },
+    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
   // Sample notifications
   const notifications = [
-    { id: 1, title: 'New message received', description: 'You have a new message from Sarah', time: '5 min ago', unread: true },
-    { id: 2, title: 'Report generated', description: 'Your monthly report is ready', time: '1 hour ago', unread: true },
-    { id: 3, title: 'System update', description: 'System maintenance scheduled for tonight', time: '3 hours ago', unread: false },
-    { id: 4, title: 'New team member', description: 'Alex joined your team', time: '1 day ago', unread: false },
+    {
+      id: 1,
+      title: "New message received",
+      description: "You have a new message from Sarah",
+      time: "5 min ago",
+      unread: true,
+    },
+    {
+      id: 2,
+      title: "Report generated",
+      description: "Your monthly report is ready",
+      time: "1 hour ago",
+      unread: true,
+    },
+    {
+      id: 3,
+      title: "System update",
+      description: "System maintenance scheduled for tonight",
+      time: "3 hours ago",
+      unread: false,
+    },
+    {
+      id: 4,
+      title: "New team member",
+      description: "Alex joined your team",
+      time: "1 day ago",
+      unread: false,
+    },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
         setNotificationsOpen(false);
       }
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -53,91 +90,112 @@ const Header = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Toggle dark mode
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [darkMode]);
 
   return (
-    <header 
-      className="h-20 px-6 sticky top-0 z-40 flex items-center"
+    <header
+      className="h-20 px-6 sticky top-0 z-40 flex bg-card items-center"
       style={{
-        backgroundColor: darkMode ? 'rgb(26, 26, 46)' : 'rgb(255, 255, 255)',
-        borderBottom: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}`,
-        fontFamily: 'Inter, sans-serif',
+        fontFamily: "Inter, sans-serif",
       }}
     >
-      <div className='flex items-center justify-between w-full'>
+      <div className="flex items-center justify-between w-full">
         {/* Left Section: Logo and Navigation */}
-        <div className='flex items-center space-x-8'>
+        <div className="flex items-center space-x-8">
           {/* Company Logo and Name */}
-          <div className='flex items-center space-x-2'>
-            <div 
+          <div className="flex items-center space-x-2">
+            <div
               className="flex items-center justify-center rounded-lg"
-              style={{ 
-                width: '32px', 
-                height: '32px',
-                background: darkMode 
-                  ? 'linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)'
-                  : 'linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)'
+              style={{
+                width: "32px",
+                height: "32px",
+                background: darkMode
+                  ? "linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)"
+                  : "linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)",
               }}
             >
               <span className="text-white font-bold text-sm">R</span>
             </div>
-            <span className='text-xl font-bold' style={{ 
-              color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)',
-              letterSpacing: '0em'
-            }}>
+            <span
+              className="text-xl font-bold"
+              style={{
+                color: darkMode ? "rgb(226, 226, 245)" : "rgb(42, 42, 74)",
+                letterSpacing: "0em",
+              }}
+            >
               RingoAI
             </span>
           </div>
 
           {/* Separator */}
-          <div className='h-6 w-px' style={{ 
-            backgroundColor: darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)' 
-          }}></div>
+          <div
+            className="h-6 w-px"
+            style={{
+              backgroundColor: darkMode
+                ? "rgb(48, 48, 82)"
+                : "rgb(224, 224, 240)",
+            }}
+          ></div>
 
           {/* Navigation */}
-          <nav className='flex items-center space-x-1'>
+          <nav className="flex items-center space-x-1">
             {navItems.map((item) => {
               const isActive = currentPage === item.label;
               const Icon = item.icon;
-              
+
               return (
                 <button
                   key={item.id}
-                  className='flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200'
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200"
                   style={{
-                    backgroundColor: isActive 
-                      ? (darkMode ? 'rgb(164, 143, 255)' : 'rgb(110, 86, 207)')
-                      : 'transparent',
-                    color: isActive 
-                      ? (darkMode ? 'rgb(15, 15, 26)' : 'rgb(255, 255, 255)')
-                      : (darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)'),
+                    backgroundColor: isActive
+                      ? darkMode
+                        ? "rgb(164, 143, 255)"
+                        : "rgb(110, 86, 207)"
+                      : "transparent",
+                    color: isActive
+                      ? darkMode
+                        ? "rgb(15, 15, 26)"
+                        : "rgb(255, 255, 255)"
+                      : darkMode
+                        ? "rgb(160, 160, 192)"
+                        : "rgb(108, 108, 138)",
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.backgroundColor = darkMode ? 'rgb(48, 48, 96)' : 'rgb(240, 240, 250)';
-                      e.currentTarget.style.color = darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)';
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "rgb(48, 48, 96)"
+                        : "rgb(240, 240, 250)";
+                      e.currentTarget.style.color = darkMode
+                        ? "rgb(226, 226, 245)"
+                        : "rgb(42, 42, 74)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)';
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = darkMode
+                        ? "rgb(160, 160, 192)"
+                        : "rgb(108, 108, 138)";
                     }
                   }}
                 >
-                  <Icon className='w-4 h-4' />
-                  <span className='text-sm font-medium' style={{ letterSpacing: '0em' }}>
+                  <Icon className="w-4 h-4" />
+                  <span
+                    className="text-sm font-medium"
+                    style={{ letterSpacing: "0em" }}
+                  >
                     {item.label}
                   </span>
                 </button>
@@ -147,140 +205,192 @@ const Header = ({
         </div>
 
         {/* Right Section: Icons and Dropdowns */}
-        <div className='flex items-center space-x-3'>
+        <div className="flex items-center space-x-3">
           {/* Theme Toggle */}
-          <button 
+          <button
             onClick={() => setDarkMode(!darkMode)}
-            className='p-2 rounded-lg transition-colors'
+            className="p-2 rounded-lg transition-colors"
             style={{
-              backgroundColor: 'transparent',
-              color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)',
+              backgroundColor: "transparent",
+              color: darkMode ? "rgb(160, 160, 192)" : "rgb(108, 108, 138)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = darkMode ? 'rgb(48, 48, 96)' : 'rgb(240, 240, 250)';
+              e.currentTarget.style.backgroundColor = darkMode
+                ? "rgb(48, 48, 96)"
+                : "rgb(240, 240, 250)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
-            {darkMode ? <Sun className='w-5 h-5' /> : <Moon className='w-5 h-5' />}
+            {darkMode ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
           </button>
 
           {/* Help Icon */}
-          <button 
-            className='p-2 rounded-lg transition-colors'
+          <button
+            className="p-2 rounded-lg transition-colors"
             style={{
-              backgroundColor: 'transparent',
-              color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)',
+              backgroundColor: "transparent",
+              color: darkMode ? "rgb(160, 160, 192)" : "rgb(108, 108, 138)",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = darkMode ? 'rgb(48, 48, 96)' : 'rgb(240, 240, 250)';
+              e.currentTarget.style.backgroundColor = darkMode
+                ? "rgb(48, 48, 96)"
+                : "rgb(240, 240, 250)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
-            <HelpCircle className='w-5 h-5' />
+            <HelpCircle className="w-5 h-5" />
           </button>
 
           {/* Notification Bell with Dropdown */}
-          <div className='relative' ref={notificationRef}>
+          <div className="relative" ref={notificationRef}>
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className='relative p-2 rounded-lg transition-colors'
+              className="relative p-2 rounded-lg transition-colors"
               style={{
-                backgroundColor: 'transparent',
-                color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)',
+                backgroundColor: "transparent",
+                color: darkMode ? "rgb(160, 160, 192)" : "rgb(108, 108, 138)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = darkMode ? 'rgb(48, 48, 96)' : 'rgb(240, 240, 250)';
+                e.currentTarget.style.backgroundColor = darkMode
+                  ? "rgb(48, 48, 96)"
+                  : "rgb(240, 240, 250)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
-              <Bell className='w-5 h-5' />
+              <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className='absolute top-1 right-1 w-2 h-2 rounded-full' style={{
-                  backgroundColor: 'rgb(255, 84, 112)'
-                }}></span>
+                <span
+                  className="absolute top-1 right-1 w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: "rgb(255, 84, 112)",
+                  }}
+                ></span>
               )}
             </button>
 
             {/* Notifications Dropdown */}
             {notificationsOpen && (
-              <div 
-                className='absolute right-0 mt-2 w-80 rounded-lg shadow-xl'
+              <div
+                className="absolute right-0 mt-2 w-80 rounded-lg shadow-xl"
                 style={{
-                  backgroundColor: darkMode ? 'rgb(26, 26, 46)' : 'rgb(255, 255, 255)',
-                  border: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}`,
-                  boxShadow: darkMode 
-                    ? '0px 4px 10px 0px hsl(240 30% 5% / 0.30)' 
-                    : '0px 4px 10px 0px hsl(240 30% 25% / 0.12)',
+                  backgroundColor: darkMode
+                    ? "rgb(26, 26, 46)"
+                    : "rgb(255, 255, 255)",
+                  border: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  boxShadow: darkMode
+                    ? "0px 4px 10px 0px hsl(240 30% 5% / 0.30)"
+                    : "0px 4px 10px 0px hsl(240 30% 25% / 0.12)",
                 }}
               >
-                <div className='p-4' style={{ 
-                  borderBottom: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}` 
-                }}>
-                  <div className='flex items-center justify-between'>
-                    <h3 className='text-sm font-semibold' style={{ 
-                      color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
-                    }}>
+                <div
+                  className="p-4"
+                  style={{
+                    borderBottom: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3
+                      className="text-sm font-semibold"
+                      style={{
+                        color: darkMode
+                          ? "rgb(226, 226, 245)"
+                          : "rgb(42, 42, 74)",
+                      }}
+                    >
                       Notifications
                     </h3>
                     {unreadCount > 0 && (
-                      <span className='text-xs font-medium' style={{ 
-                        color: darkMode ? 'rgb(164, 143, 255)' : 'rgb(110, 86, 207)' 
-                      }}>
+                      <span
+                        className="text-xs font-medium"
+                        style={{
+                          color: darkMode
+                            ? "rgb(164, 143, 255)"
+                            : "rgb(110, 86, 207)",
+                        }}
+                      >
                         {unreadCount} unread
                       </span>
                     )}
                   </div>
                 </div>
-                <div className='max-h-96 overflow-y-auto'>
+                <div className="max-h-96 overflow-y-auto">
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className='p-4 transition-colors cursor-pointer'
+                      className="p-4 transition-colors cursor-pointer"
                       style={{
-                        backgroundColor: notification.unread 
-                          ? (darkMode ? 'rgba(164, 143, 255, 0.1)' : 'rgba(110, 86, 207, 0.05)')
-                          : 'transparent',
-                        borderBottom: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}`,
+                        backgroundColor: notification.unread
+                          ? darkMode
+                            ? "rgba(164, 143, 255, 0.1)"
+                            : "rgba(110, 86, 207, 0.05)"
+                          : "transparent",
+                        borderBottom: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = darkMode ? 'rgb(34, 34, 68)' : 'rgb(240, 240, 250)';
+                        e.currentTarget.style.backgroundColor = darkMode
+                          ? "rgb(34, 34, 68)"
+                          : "rgb(240, 240, 250)";
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = notification.unread 
-                          ? (darkMode ? 'rgba(164, 143, 255, 0.1)' : 'rgba(110, 86, 207, 0.05)')
-                          : 'transparent';
+                        e.currentTarget.style.backgroundColor =
+                          notification.unread
+                            ? darkMode
+                              ? "rgba(164, 143, 255, 0.1)"
+                              : "rgba(110, 86, 207, 0.05)"
+                            : "transparent";
                       }}
                     >
-                      <div className='flex items-start space-x-3'>
+                      <div className="flex items-start space-x-3">
                         <div
-                          className='mt-1 w-2 h-2 rounded-full'
+                          className="mt-1 w-2 h-2 rounded-full"
                           style={{
-                            backgroundColor: notification.unread 
-                              ? (darkMode ? 'rgb(164, 143, 255)' : 'rgb(110, 86, 207)')
-                              : 'transparent'
+                            backgroundColor: notification.unread
+                              ? darkMode
+                                ? "rgb(164, 143, 255)"
+                                : "rgb(110, 86, 207)"
+                              : "transparent",
                           }}
                         ></div>
-                        <div className='flex-1'>
-                          <p className='text-sm font-medium' style={{ 
-                            color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
-                          }}>
+                        <div className="flex-1">
+                          <p
+                            className="text-sm font-medium"
+                            style={{
+                              color: darkMode
+                                ? "rgb(226, 226, 245)"
+                                : "rgb(42, 42, 74)",
+                            }}
+                          >
                             {notification.title}
                           </p>
-                          <p className='text-xs mt-1' style={{ 
-                            color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)' 
-                          }}>
+                          <p
+                            className="text-xs mt-1"
+                            style={{
+                              color: darkMode
+                                ? "rgb(160, 160, 192)"
+                                : "rgb(108, 108, 138)",
+                            }}
+                          >
                             {notification.description}
                           </p>
-                          <p className='text-xs mt-2' style={{ 
-                            color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)',
-                            opacity: 0.7 
-                          }}>
+                          <p
+                            className="text-xs mt-2"
+                            style={{
+                              color: darkMode
+                                ? "rgb(160, 160, 192)"
+                                : "rgb(108, 108, 138)",
+                              opacity: 0.7,
+                            }}
+                          >
                             {notification.time}
                           </p>
                         </div>
@@ -288,12 +398,20 @@ const Header = ({
                     </div>
                   ))}
                 </div>
-                <div className='p-3' style={{ 
-                  borderTop: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}` 
-                }}>
-                  <button className='w-full text-center text-sm font-medium transition-colors' style={{ 
-                    color: darkMode ? 'rgb(164, 143, 255)' : 'rgb(110, 86, 207)' 
-                  }}>
+                <div
+                  className="p-3"
+                  style={{
+                    borderTop: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  }}
+                >
+                  <button
+                    className="w-full text-center text-sm font-medium transition-colors"
+                    style={{
+                      color: darkMode
+                        ? "rgb(164, 143, 255)"
+                        : "rgb(110, 86, 207)",
+                    }}
+                  >
                     View all notifications
                   </button>
                 </div>
@@ -302,164 +420,204 @@ const Header = ({
           </div>
 
           {/* Profile Picture with Dropdown */}
-          <div className='relative' ref={profileRef}>
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className='flex items-center space-x-2 p-1 rounded-lg transition-colors'
+              className="flex items-center space-x-2 p-1 rounded-lg transition-colors"
               style={{
-                backgroundColor: 'transparent',
+                backgroundColor: "transparent",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = darkMode ? 'rgb(48, 48, 96)' : 'rgb(240, 240, 250)';
+                e.currentTarget.style.backgroundColor = darkMode
+                  ? "rgb(48, 48, 96)"
+                  : "rgb(240, 240, 250)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
               {user.avatar ? (
                 <img
                   src={user.avatar}
-                  alt='Profile'
-                  className='w-8 h-8 rounded-full object-cover'
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
-                <div 
-                  className='w-8 h-8 rounded-full flex items-center justify-center'
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{
-                    background: darkMode 
-                      ? 'linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)'
-                      : 'linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)'
+                    background: darkMode
+                      ? "linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)"
+                      : "linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)",
                   }}
                 >
-                  <span className='text-white text-sm font-medium'>
+                  <span className="text-white text-sm font-medium">
                     {user.name
-                      .split(' ')
+                      .split(" ")
                       .map((n) => n[0])
-                      .join('')
+                      .join("")
                       .toUpperCase()}
                   </span>
                 </div>
               )}
-              <ChevronDown className='w-4 h-4' style={{ 
-                color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)' 
-              }} />
+              <ChevronDown
+                className="w-4 h-4"
+                style={{
+                  color: darkMode ? "rgb(160, 160, 192)" : "rgb(108, 108, 138)",
+                }}
+              />
             </button>
 
             {/* Profile Dropdown */}
             {profileOpen && (
-              <div 
-                className='absolute right-0 mt-2 w-64 rounded-lg shadow-xl'
+              <div
+                className="absolute right-0 mt-2 w-64 rounded-lg shadow-xl"
                 style={{
-                  backgroundColor: darkMode ? 'rgb(26, 26, 46)' : 'rgb(255, 255, 255)',
-                  border: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}`,
-                  boxShadow: darkMode 
-                    ? '0px 4px 10px 0px hsl(240 30% 5% / 0.30)' 
-                    : '0px 4px 10px 0px hsl(240 30% 25% / 0.12)',
+                  backgroundColor: darkMode
+                    ? "rgb(26, 26, 46)"
+                    : "rgb(255, 255, 255)",
+                  border: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  boxShadow: darkMode
+                    ? "0px 4px 10px 0px hsl(240 30% 5% / 0.30)"
+                    : "0px 4px 10px 0px hsl(240 30% 25% / 0.12)",
                 }}
               >
-                <div className='p-4' style={{ 
-                  borderBottom: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}` 
-                }}>
-                  <div className='flex items-center space-x-3'>
+                <div
+                  className="p-4"
+                  style={{
+                    borderBottom: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
                     {user.avatar ? (
                       <img
                         src={user.avatar}
-                        alt='Profile'
-                        className='w-10 h-10 rounded-full object-cover'
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div 
-                        className='w-10 h-10 rounded-full flex items-center justify-center'
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
                         style={{
-                          background: darkMode 
-                            ? 'linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)'
-                            : 'linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)'
+                          background: darkMode
+                            ? "linear-gradient(135deg, rgb(164, 143, 255) 0%, rgb(121, 134, 203) 100%)"
+                            : "linear-gradient(135deg, rgb(110, 86, 207) 0%, rgb(93, 95, 239) 100%)",
                         }}
                       >
-                        <span className='text-white font-medium'>
+                        <span className="text-white font-medium">
                           {user.name
-                            .split(' ')
+                            .split(" ")
                             .map((n) => n[0])
-                            .join('')
+                            .join("")
                             .toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <div className='flex-1'>
-                      <p className='text-sm font-semibold' style={{ 
-                        color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
-                      }}>
+                    <div className="flex-1">
+                      <p
+                        className="text-sm font-semibold"
+                        style={{
+                          color: darkMode
+                            ? "rgb(226, 226, 245)"
+                            : "rgb(42, 42, 74)",
+                        }}
+                      >
                         {user.name}
                       </p>
-                      <p className='text-xs' style={{ 
-                        color: darkMode ? 'rgb(160, 160, 192)' : 'rgb(108, 108, 138)' 
-                      }}>
+                      <p
+                        className="text-xs"
+                        style={{
+                          color: darkMode
+                            ? "rgb(160, 160, 192)"
+                            : "rgb(108, 108, 138)",
+                        }}
+                      >
                         {user.email}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className='py-1'>
-                  <button className='w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors'
-                    style={{ 
-                      color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
+                <div className="py-1">
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors"
+                    style={{
+                      color: darkMode
+                        ? "rgb(226, 226, 245)"
+                        : "rgb(42, 42, 74)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode ? 'rgb(34, 34, 68)' : 'rgb(240, 240, 250)';
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "rgb(34, 34, 68)"
+                        : "rgb(240, 240, 250)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <User className='w-4 h-4' />
+                    <User className="w-4 h-4" />
                     <span>Profile</span>
                   </button>
-                  <button className='w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors'
-                    style={{ 
-                      color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors"
+                    style={{
+                      color: darkMode
+                        ? "rgb(226, 226, 245)"
+                        : "rgb(42, 42, 74)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode ? 'rgb(34, 34, 68)' : 'rgb(240, 240, 250)';
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "rgb(34, 34, 68)"
+                        : "rgb(240, 240, 250)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <Settings className='w-4 h-4' />
+                    <Settings className="w-4 h-4" />
                     <span>Settings</span>
                   </button>
-                  <button className='w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors'
-                    style={{ 
-                      color: darkMode ? 'rgb(226, 226, 245)' : 'rgb(42, 42, 74)' 
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors"
+                    style={{
+                      color: darkMode
+                        ? "rgb(226, 226, 245)"
+                        : "rgb(42, 42, 74)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = darkMode ? 'rgb(34, 34, 68)' : 'rgb(240, 240, 250)';
+                      e.currentTarget.style.backgroundColor = darkMode
+                        ? "rgb(34, 34, 68)"
+                        : "rgb(240, 240, 250)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <Shield className='w-4 h-4' />
+                    <Shield className="w-4 h-4" />
                     <span>Switch Account</span>
                   </button>
                 </div>
 
-                <div className='py-1' style={{ 
-                  borderTop: `1px solid ${darkMode ? 'rgb(48, 48, 82)' : 'rgb(224, 224, 240)'}` 
-                }}>
-                  <button className='w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors'
-                    style={{ 
-                      color: 'rgb(255, 84, 112)' 
+                <div
+                  className="py-1"
+                  style={{
+                    borderTop: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
+                  }}
+                >
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm flex items-center space-x-3 transition-colors"
+                    style={{
+                      color: "rgb(255, 84, 112)",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(255, 84, 112, 0.1)';
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(255, 84, 112, 0.1)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.backgroundColor = "transparent";
                     }}
                   >
-                    <LogOut className='w-4 h-4' />
+                    <LogOut className="w-4 h-4" />
                     <span>Sign Out</span>
                   </button>
                 </div>
@@ -473,3 +631,4 @@ const Header = ({
 };
 
 export default Header;
+

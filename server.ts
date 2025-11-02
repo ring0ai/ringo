@@ -9,7 +9,7 @@ import auth from "basic-auth";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { queueManager } from "./lib/queues/queueManager";
-import { createClient } from "redis"
+import { createClient } from "redis";
 
 dotenv.config();
 
@@ -20,7 +20,6 @@ const handle = nextApp.getRequestHandler();
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
-// Initialize your queues here, before setting up BullBoard router
 const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
   queues: [],
   serverAdapter,
@@ -37,7 +36,7 @@ const verifyAPIKey = (req: any, res: any, next: any) => {
     return res.status(401).send("Unauthorized");
   }
   next();
-}
+};
 
 async function main() {
   await nextApp.prepare();
@@ -45,7 +44,7 @@ async function main() {
   const app = express();
   const server = createServer(app);
 
-  app.use(express.json())
+  app.use(express.json());
 
   const queues = await queueManager.getQueues();
   for (const queue of queues) {
@@ -65,7 +64,7 @@ async function main() {
       }
       next();
     },
-    serverAdapter.getRouter()
+    serverAdapter.getRouter(),
   );
 
   app.get("/api/health", async (req, res) => {
@@ -74,7 +73,7 @@ async function main() {
     const redisClient = createClient({
       url: process.env.REDIS_URL,
     });
-    if(!redisClient.isOpen) {
+    if (!redisClient.isOpen) {
       await redisClient.connect();
     }
 
@@ -89,7 +88,7 @@ async function main() {
   });
 
   // API endpoint to update queues
-  app.post("/api/internal/queues", verifyAPIKey,  async (req, res) => {
+  app.post("/api/internal/queues", verifyAPIKey, async (req, res) => {
     console.log("🔌 Queues updated:", req.body);
     try {
       const queue = new Queue(req.body.name);

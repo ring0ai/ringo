@@ -16,17 +16,21 @@ import {
   TextField,
   useAppForm,
 } from "@/hooks/form";
-import { createCampaignSchema } from "@/lib/validators";
+import { CreateCampaignSchema, createCampaignSchema } from "@/lib/validators";
+import { PhoneContactsForm } from "./PhoneContactForm";
 
 export default function NewCampaignPage() {
   const createCampaignMutation = useCreateCampaignMutation();
 
   const form = useAppForm({
-    defaultValues: {
-      title: "",
-      description: "",
-      prompt: "",
-    },
+    defaultValues: true
+      ? generateDummyCampaignData(5)
+      : {
+          title: "",
+          description: "",
+          prompt: "",
+          contacts: [] as CreateCampaignSchema["contacts"],
+        },
     validators: {
       onChange: createCampaignSchema,
     },
@@ -35,10 +39,15 @@ export default function NewCampaignPage() {
     },
   });
 
+  const contacts = form.state.values.contacts;
+
+  const handleAddContact = (contacts: CreateCampaignSchema["contacts"]) => {
+    form.setFieldValue("contacts", contacts);
+  };
+
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* Header */}
+      <div className=" mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard">
             <Button
@@ -48,15 +57,9 @@ export default function NewCampaignPage() {
               ← Back
             </Button>
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Create Campaign</h1>
-            <p className="text-muted-foreground mt-1">
-              Set up a new calling campaign
-            </p>
-          </div>
+          <h1 className="text-3xl font-bold text-primary">Create Campaign</h1>
         </div>
 
-        {/* Form */}
         <Card className="border-primary/20">
           <CardHeader className="border-b border-primary/10">
             <CardTitle className="text-primary">Campaign Details</CardTitle>
@@ -64,8 +67,8 @@ export default function NewCampaignPage() {
               Fill in the information for your new campaign
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
+          <CardContent className="grid grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="space-y-6 col-span-3">
               <form.AppField
                 name="title"
                 children={(props) => (
@@ -99,17 +102,46 @@ export default function NewCampaignPage() {
                   />
                 )}
               />
-
-              <form.AppForm>
-                <SubscribeButton
-                  buttonProps={{ className: "w-full" }}
-                  label="Create Campaign"
-                />
-              </form.AppForm>
             </div>
+
+            <PhoneContactsForm
+              contacts={contacts}
+              updateContact={handleAddContact}
+            />
+
+            <div className="col-span-3" />
+            <form.AppForm>
+              <SubscribeButton
+                buttonProps={{ className: "w-full col-span-3" }}
+                label="Create Campaign"
+              />
+            </form.AppForm>
           </CardContent>
         </Card>
       </div>
     </main>
   );
+}
+
+const randomUUID = () =>
+  "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+
+function generateDummyCampaignData(count = 5): CreateCampaignSchema {
+  const contacts = Array.from({ length: count }, (_, i) => ({
+    id: randomUUID(),
+    name: `Contact ${i + 1}`,
+    number: `+91${Math.floor(9000000000 + Math.random() * 1000000000)}`,
+  }));
+
+  return {
+    title: "AI Marketing Campaign",
+    description: "A test campaign for demo purposes",
+    prompt:
+      "Call and introduce our new AI-powered product to potential clients.",
+    contacts,
+  };
 }

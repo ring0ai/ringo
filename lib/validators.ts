@@ -16,6 +16,13 @@ export const createCampaignSchema = z.object({
       required_error: "Prompt is required",
     })
     .min(20, "Prompt must be at least 20 characters"),
+  contacts: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      number: z.string(),
+    }),
+  ),
 });
 
 export type CreateCampaignSchema = z.infer<typeof createCampaignSchema>;

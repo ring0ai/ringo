@@ -7,6 +7,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { and, desc, eq } from "drizzle-orm";
 import z from "zod";
 import { CreateCampaignSchema } from "../validators";
+import { campaignContactsTable, contactsTable } from "@/db/schemas";
 
 const getCampaignsParamsSchema = z
   .object({
@@ -38,15 +39,38 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
     if (!user) {
       return createErrorResponse("User not found", "UNAUTHORIZED");
     }
-    const newCampaign = await db
-      .insert(campaignsTable)
-      .values({
-        title: campaign.title,
-        description: campaign.description,
-        prompt: campaign.prompt,
-        created_by: user.id,
-      })
-      .returning();
+
+    const newCampaign = await db.transaction(async (trx) => {
+      const insertedContacts = await db
+        .insert(contactsTable)
+        .values(
+          campaign.contacts.map((contact) => ({
+            name: contact.name,
+            number: contact.number,
+          })),
+        )
+        .returning({ id: contactsTable.id });
+
+      const [insertedCampaign] = await db
+        .insert(campaignsTable)
+        .values({
+          title: campaign.title,
+          description: campaign.description,
+          prompt: campaign.prompt,
+          created_by: user.id,
+        })
+        .returning();
+
+      await db.insert(campaignContactsTable).values(
+        insertedContacts.map((contact) => ({
+          campaignId: insertedCampaign.id,
+          contactId: contact.id,
+        })),
+      );
+
+      return insertedCampaign;
+    });
+
     return createSuccessResponse(newCampaign);
   } catch (error) {
     const errorMessage =
