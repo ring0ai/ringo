@@ -1,6 +1,5 @@
+import MasterLayout from "@/components/layout/MasterLayout";
 import type React from "react";
-import { Header } from "@/components/header";
-import { ClerkLoaded, RedirectToSignIn, SignedOut } from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -9,13 +8,13 @@ export default function DashboardLayout({
 }) {
   return (
     <>
-      <ClerkLoaded>
+      {/* <ClerkLoaded>
         <SignedOut>
           <RedirectToSignIn />
         </SignedOut>
       </ClerkLoaded>
-      <Header />
-      {children}
+      <Header /> */}
+      <MasterLayout>{children}</MasterLayout>
     </>
   );
 }
