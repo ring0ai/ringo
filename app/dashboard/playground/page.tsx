@@ -2,12 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { AskAi } from "./AskAi";
 import { testFunction } from "./actions";
+import { initiateCampaign } from "@/lib/server-functions/campaign";
 
 const Playground = () => {
 
   const clickHandler = async () => {
     console.log("clicked");
-    await testFunction();
+    await initiateCampaign("eb496a58-b107-4ad6-86cd-6b47dc242ee5")
     console.log("clicked2");
   }
 

@@ -14,6 +14,8 @@ export const env = createEnv({
     API_BASE_URL: z.string().default("http://localhost:3000"),
     SARVAM_API_KEY: z.string().min(8),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(8),
+    FROM_NUMBER: z.string().min(8),
+    DEEPGRAM_API_KEY: z.string()
   },
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(8),
@@ -38,6 +40,8 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:
       process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL,
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+    FROM_NUMBER: process.env.FROM_NUMBER,
+    DEEPGRAM_API_KEY: process.env.DEEPGRAM_API_KEY,
   },
   emptyStringAsUndefined: true,
 });
