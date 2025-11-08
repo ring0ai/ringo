@@ -43,7 +43,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
     }
 
     const newCampaign = await db.transaction(async (trx) => {
-      const insertedContacts = await db
+      const insertedContacts = await trx
         .insert(contactsTable)
         .values(
           campaign.contacts.map((contact) => ({
@@ -53,7 +53,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
         )
         .returning({ id: contactsTable.id });
 
-      const [insertedCampaign] = await db
+      const [insertedCampaign] = await trx
         .insert(campaignsTable)
         .values({
           title: campaign.title,
@@ -63,7 +63,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
         })
         .returning();
 
-      await db.insert(campaignContactsTable).values(
+      await trx.insert(campaignContactsTable).values(
         insertedContacts.map((contact) => ({
           campaignId: insertedCampaign.id,
           contactId: contact.id,
