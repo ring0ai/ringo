@@ -28,9 +28,13 @@ type PhoneContact = CreateCampaignSchema["contacts"][number];
 export function PhoneContactsForm({
   contacts,
   updateContact,
+  addContact,
+  removeContact,
 }: {
   contacts: PhoneContact[];
   updateContact: (contacts: PhoneContact[]) => void;
+  addContact: (contact: PhoneContact) => void;
+  removeContact: (id: number) => void;
 }) {
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -43,14 +47,12 @@ export function PhoneContactsForm({
         name: name.trim(),
         number: number.trim(),
       };
-      updateContact([...contacts, newContact]);
-      setName("");
-      setNumber("");
+      addContact(newContact);
     }
   };
 
-  const handleDeleteContact = (id: string) => {
-    updateContact(contacts.filter((contact) => contact.id !== id));
+  const handleDeleteContact = (id: number) => {
+    removeContact(id);
   };
 
   const handleFileUpload = async (
@@ -203,7 +205,7 @@ export function PhoneContactsForm({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {contacts.map((contact) => (
+                  {contacts.map((contact, index) => (
                     <TableRow key={contact.id}>
                       <TableCell className="font-medium">
                         {contact.name}
@@ -215,7 +217,7 @@ export function PhoneContactsForm({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteContact(contact.id)}
+                          onClick={() => handleDeleteContact(index)}
                           className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />

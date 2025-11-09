@@ -105,10 +105,16 @@ export default function NewCampaignPage() {
               />
             </div>
 
-            <PhoneContactsForm
-              contacts={contacts || []}
-              updateContact={handleAddContact}
-            />
+            <form.Field key="contacts" name="contacts">
+              {(field) => (
+                <PhoneContactsForm
+                  contacts={field.state.value}
+                  addContact={field.pushValue}
+                  removeContact={field.removeValue}
+                  updateContact={field.handleChange}
+                />
+              )}
+            </form.Field>
 
             <div className="col-span-3" />
             <form.AppForm>
@@ -132,17 +138,15 @@ const randomUUID = () =>
   });
 
 function generateDummyCampaignData(count = 5): CreateCampaignSchema {
-  const contacts = Array.from({ length: count }, (_, i) => ({
-    id: randomUUID(),
-    name: `Contact ${i + 1}`,
-    number: `+91${Math.floor(9000000000 + Math.random() * 1000000000)}`,
-  }));
+  const contacts: CreateCampaignSchema["contacts"] = [
+    { name: "supriyo", number: "+918910474969", id: randomUUID() },
+  ];
 
   return {
     title: "AI Marketing Campaign",
     description: "A test campaign for demo purposes",
     prompt:
       "Call and introduce our new AI-powered product to potential clients.",
-    contacts: [],
+    contacts: contacts,
   };
 }
