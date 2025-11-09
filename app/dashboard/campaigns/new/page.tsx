@@ -18,12 +18,13 @@ import {
 } from "@/hooks/form";
 import { CreateCampaignSchema, createCampaignSchema } from "@/lib/validators";
 import { PhoneContactsForm } from "./PhoneContactForm";
+import { isDevelopment } from "@/config/constants";
 
 export default function NewCampaignPage() {
   const createCampaignMutation = useCreateCampaignMutation();
 
   const form = useAppForm({
-    defaultValues: true
+    defaultValues: isDevelopment
       ? generateDummyCampaignData(5)
       : {
           title: "",
@@ -39,11 +40,11 @@ export default function NewCampaignPage() {
     },
   });
 
-  const contacts = form.state.values.contacts;
-
   const handleAddContact = (contacts: CreateCampaignSchema["contacts"]) => {
     form.setFieldValue("contacts", contacts);
   };
+
+  const contacts = form.state.values.contacts;
 
   return (
     <main className="min-h-screen bg-background">
@@ -105,7 +106,7 @@ export default function NewCampaignPage() {
             </div>
 
             <PhoneContactsForm
-              contacts={contacts}
+              contacts={contacts || []}
               updateContact={handleAddContact}
             />
 
@@ -142,6 +143,6 @@ function generateDummyCampaignData(count = 5): CreateCampaignSchema {
     description: "A test campaign for demo purposes",
     prompt:
       "Call and introduce our new AI-powered product to potential clients.",
-    contacts,
+    contacts: [],
   };
 }

@@ -172,39 +172,42 @@ export const initiateCampaign = async (campaignId: string) => {
   try {
     console.log("initiate campaign called");
     const user = await currentUser();
-    if(!user) {
+    if (!user) {
       return createErrorResponse("User not found", "UNAUTHORIZED");
     }
-    
+
     const campaign = await db.query.campaignsTable.findFirst({
       where: and(
         eq(campaignsTable.id, campaignId),
-        eq(campaignsTable.created_by, user.id)
+        eq(campaignsTable.created_by, user.id),
       ),
       with: {
         campaignContacts: {
           with: {
-            contact: true
-          }
-        }
-      }
-    })
-    if(!campaign) {
+            contact: true,
+          },
+        },
+      },
+    });
+    if (!campaign) {
       return createErrorResponse("Campaign not found", "NOT_FOUND");
     }
 
     // TODO: The number used to make call should be made dynamic in future
     const fromNumber = env.FROM_NUMBER;
 
-    const queue = await queueManager.createQueue(`callWorker#${fromNumber}`, TaskType.CallWorker);
-    
+    const queue = await queueManager.createQueue(
+      `callWorker#${fromNumber}`,
+      TaskType.CallWorker,
+    );
+
     // Add all the contacts to the queue
     const queuePayload = campaign.campaignContacts.map((contact) => ({
       data: {
         campaignId: campaign.id,
         contactId: contact.contact.id,
-        fromNumber: fromNumber
-      }
+        fromNumber: fromNumber,
+      },
     }));
 
     console.log("queue payload", queuePayload);
@@ -212,9 +215,10 @@ export const initiateCampaign = async (campaignId: string) => {
     await queue.addBulk(queuePayload);
 
     return createSuccessResponse(campaign);
-  } catch(error) {
+  } catch (error) {
     console.log("error", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage);
   }
 };
