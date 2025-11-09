@@ -76,7 +76,7 @@ export const conversationHandler = async (
       console.log("Sending audio to deepgram");
       deepgramWs.send(chunk);
     }
-  }, 1000 * 2);
+  }, 10);
 
   intervalMap.set(streamSid, intervalId);
 };
