@@ -111,9 +111,7 @@ const Header = ({
       }}
     >
       <div className="flex items-center justify-between w-full">
-        {/* Left Section: Logo and Navigation */}
         <div className="flex items-center space-x-8">
-          {/* Company Logo and Name */}
           <div className="flex items-center space-x-2">
             <div
               className="flex items-center justify-center rounded-lg"
@@ -127,18 +125,9 @@ const Header = ({
             >
               <span className="text-white font-bold text-sm">R</span>
             </div>
-            <span
-              className="text-xl font-bold"
-              style={{
-                color: darkMode ? "rgb(226, 226, 245)" : "rgb(42, 42, 74)",
-                letterSpacing: "0em",
-              }}
-            >
-              RingoAI
-            </span>
+            <span className="text-xl font-bold">RingoAI</span>
           </div>
 
-          {/* Separator */}
           <div
             className="h-6 w-px"
             style={{
@@ -631,4 +620,3 @@ const Header = ({
 };
 
 export default Header;
-

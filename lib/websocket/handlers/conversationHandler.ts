@@ -21,9 +21,9 @@ const getDeepgramWs = async (
     });
 
     ws.on("message", (message) => {
-      console.log("Received message from Deepgram:", message);
+      // console.log("Received message from Deepgram:", message);
       if (typeof message === "string") {
-        console.log("Received message from Deepgram:", message);
+        // console.log("Received message from Deepgram:", message);
         const decoded = JSON.parse(message);
         if (decoded.type === "UserStartedSpeaking") {
           console.log("Clearing twilio stream");
@@ -45,7 +45,7 @@ const getDeepgramWs = async (
         streamSid: streamSid,
         media: { payload: rawMulaw.toString("base64") },
       };
-      console.log("Sending message to twilio:", mediaMessage);
+      // console.log("Sending message to twilio:", mediaMessage);
       twilioWs.send(JSON.stringify(mediaMessage));
     });
 
@@ -58,33 +58,16 @@ const getDeepgramWs = async (
   });
 };
 
-const intervalMap = new Map<string, NodeJS.Timeout>();
-
 export const conversationHandler = async (
   twilioWs: WebSocket,
   req: IncomingMessage,
 ) => {
   console.log("Twilio Connection established");
 
-  const audioQueue: Buffer<ArrayBuffer>[] = [];
-
-  const { deepgramWs, streamSid } = await twilioReceiver(twilioWs, audioQueue);
-
-  let intervalId = setInterval(() => {
-    const chunk = audioQueue.shift();
-    if (chunk && deepgramWs) {
-      console.log("Sending audio to deepgram");
-      deepgramWs.send(chunk);
-    }
-  }, 10);
-
-  intervalMap.set(streamSid, intervalId);
+  const { deepgramWs, streamSid } = await twilioReceiver(twilioWs);
 };
 
-async function twilioReceiver(
-  twilioWs: WebSocket,
-  audioQueue: Buffer<ArrayBuffer>[],
-) {
+async function twilioReceiver(twilioWs: WebSocket) {
   console.log("Listening for incoming messages from Twilio");
 
   const BUFFER_SIZE = 20 * 160;
@@ -129,7 +112,9 @@ async function twilioReceiver(
 
               while (inbuffer.length >= BUFFER_SIZE) {
                 const chunk = inbuffer.subarray(0, BUFFER_SIZE);
-                audioQueue.push(chunk);
+                if (chunk && deepgramWs) {
+                  deepgramWs.send(chunk);
+                }
                 inbuffer = inbuffer.subarray(BUFFER_SIZE);
               }
               break;
@@ -137,11 +122,6 @@ async function twilioReceiver(
             case "stop":
               console.log("🔴 Ended");
               if (deepgramWs) deepgramWs.close(1000, "Ended");
-              if (streamSid) {
-                const intervalId = intervalMap.get(streamSid);
-                if (intervalId) clearInterval(intervalId);
-                intervalMap.delete(streamSid);
-              }
               twilioWs.close(1000, "Ended");
               break;
 
