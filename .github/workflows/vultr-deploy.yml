@@ -21,7 +21,8 @@ jobs:
           key: ${{ secrets.VULTR_SSH_PRIVATE_KEY }}
           port: ${{ secrets.VULTR_SERVER_PORT || 22 }}
           script: |
-            cd ringo
+            cd /root/ringo
+            git checkout main
             git pull origin main
             npx drizzle-kit migrate
             # Build and deploy NextJs application:
