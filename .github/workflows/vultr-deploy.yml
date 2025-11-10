@@ -1,0 +1,34 @@
+name: Deploy to Vultr Server
+
+on:
+  push:
+    branches:
+      - main  # Change to your production branch
+  # Optional: manual trigger
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vultr Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VULTR_SERVER_HOST }}
+          username: ${{ secrets.VULTR_SERVER_USER }}
+          key: ${{ secrets.VULTR_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VULTR_SERVER_PORT || 22 }}
+          script: |
+            cd ringo
+            git pull origin main
+            npx drizzle-kit migrate
+            # Build and deploy NextJs application:
+            pnpm install
+            pnpm build
+            pm2 restart ringo
+            
+            echo "Deployment completed successfully!"
