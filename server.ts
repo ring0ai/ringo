@@ -7,10 +7,10 @@ import next from "next";
 import dotenv from "dotenv";
 import auth from "basic-auth";
 import { createServer } from "http";
-import { WebSocketServer } from "ws";
 import { queueManager } from "./lib/queues/queueManager";
 import { createClient } from "redis";
 import { setupWebsocketServer } from "./lib/websocket/server";
+import url from "url";
 
 dotenv.config();
 
@@ -45,8 +45,25 @@ async function main() {
   const app = express();
   const server = createServer(app);
 
-  // Initialize WebSocket Server
-  const wss = setupWebsocketServer(server);
+  const wss = setupWebsocketServer();
+  server.on("upgrade", (req, socket, head) => {
+    const { pathname } = url.parse(req.url || "");
+
+    if (
+      pathname?.startsWith("/_next/webpack-hmr") ||
+      pathname?.startsWith("/__next")
+    ) {
+      return;
+    }
+
+    if (pathname === "/api/socket") {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    } else {
+      socket.destroy();
+    }
+  });
 
   app.use(express.json());
 
@@ -88,10 +105,10 @@ async function main() {
 
     const ping = await redisClient.ping();
 
-    res.json({ 
-      status: "ok", 
+    res.json({
+      status: "ok",
       redis: ping === "PONG",
-      websocket: wss.clients.size + " clients connected"
+      websocket: wss.clients.size + " clients connected",
     });
   });
 

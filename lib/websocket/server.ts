@@ -10,13 +10,13 @@ const websocketParamsSchema = z.object({
 
 let websocketServer: WebSocketServer;
 
-export const setupWebsocketServer = (server: Server) => {
+export const setupWebsocketServer = () => {
   if (websocketServer) {
     return websocketServer;
   }
 
   websocketServer = new WebSocketServer({
-    server,
+    noServer: true,
     path: "/api/socket",
     verifyClient: (info: any) => {
       return true;

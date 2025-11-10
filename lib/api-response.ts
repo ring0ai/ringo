@@ -38,9 +38,9 @@ export function createSuccessResponse<T>(
 
 // Error response helpers
 export function createErrorResponse(
-  error: string,
+  message: string,
   code: ResponseCode = "ERROR",
-  message = "An error occurred",
+  error = "An error occurred",
 ): ApiResponse<never> {
   return {
     code,

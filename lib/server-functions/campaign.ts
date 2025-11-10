@@ -124,7 +124,7 @@ export const getCampaigns = async (
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
-    return createErrorResponse(errorMessage);
+    return createErrorResponse(errorMessage, "INTERNAL_ERROR");
   }
 };
 

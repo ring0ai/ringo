@@ -1,8 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { AskAi } from "./AskAi";
-import { testFunction } from "./actions";
-import { initiateCampaign } from "@/lib/server-functions/campaign";
 import RunCampaign from "./RunCampaign";
 
 const Playground = () => {
