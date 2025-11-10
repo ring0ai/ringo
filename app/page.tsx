@@ -272,26 +272,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-black/10 py-12 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between text-sm text-foreground/60">
-          <div className="text-2xl font-bold text-foreground mb-4 md:mb-0">
-            Campaign<span className="text-primary">Hub</span>
-          </div>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Contact
-            </a>
-          </div>
-        </div>
-      </footer>
-
       <style jsx>{`
         @keyframes fade-in {
           from {

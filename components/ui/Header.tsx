@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   Megaphone,
 } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
 
 const Header = ({
   currentPage = "Dashboard",
@@ -24,6 +25,7 @@ const Header = ({
   const [darkMode, setDarkMode] = useState(false);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
+  const { signOut } = useClerk();
 
   // Navigation items
   const navItems = [
@@ -604,6 +606,9 @@ const Header = ({
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                    onClick={() => {
+                      signOut();
                     }}
                   >
                     <LogOut className="w-4 h-4" />
