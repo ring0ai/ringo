@@ -28,7 +28,7 @@ export default function DashboardPage() {
   //   (sum, c) => sum + c.completedCalls,
   //   0,
   // );
-  const completedCalls = 0;
+  const completedCalls = 100;
 
   // const queuedCalls = campaigns.reduce((sum, c) => sum + c.queuedCalls, 0);
   const queuedCalls = 100;
