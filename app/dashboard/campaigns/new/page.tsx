@@ -18,12 +18,13 @@ import {
 } from "@/hooks/form";
 import { CreateCampaignSchema, createCampaignSchema } from "@/lib/validators";
 import { PhoneContactsForm } from "./PhoneContactForm";
+import { isDevelopment } from "@/config/constants";
 
 export default function NewCampaignPage() {
   const createCampaignMutation = useCreateCampaignMutation();
 
   const form = useAppForm({
-    defaultValues: true
+    defaultValues: isDevelopment
       ? generateDummyCampaignData(5)
       : {
           title: "",
@@ -39,11 +40,11 @@ export default function NewCampaignPage() {
     },
   });
 
-  const contacts = form.state.values.contacts;
-
   const handleAddContact = (contacts: CreateCampaignSchema["contacts"]) => {
     form.setFieldValue("contacts", contacts);
   };
+
+  const contacts = form.state.values.contacts;
 
   return (
     <main className="min-h-screen bg-background">
@@ -104,10 +105,16 @@ export default function NewCampaignPage() {
               />
             </div>
 
-            <PhoneContactsForm
-              contacts={contacts}
-              updateContact={handleAddContact}
-            />
+            <form.Field key="contacts" name="contacts">
+              {(field) => (
+                <PhoneContactsForm
+                  contacts={field.state.value}
+                  addContact={field.pushValue}
+                  removeContact={field.removeValue}
+                  updateContact={field.handleChange}
+                />
+              )}
+            </form.Field>
 
             <div className="col-span-3" />
             <form.AppForm>
@@ -131,17 +138,15 @@ const randomUUID = () =>
   });
 
 function generateDummyCampaignData(count = 5): CreateCampaignSchema {
-  const contacts = Array.from({ length: count }, (_, i) => ({
-    id: randomUUID(),
-    name: `Contact ${i + 1}`,
-    number: `+91${Math.floor(9000000000 + Math.random() * 1000000000)}`,
-  }));
+  const contacts: CreateCampaignSchema["contacts"] = [
+    { name: "supriyo", number: "+918910474969", id: randomUUID() },
+  ];
 
   return {
     title: "AI Marketing Campaign",
     description: "A test campaign for demo purposes",
     prompt:
       "Call and introduce our new AI-powered product to potential clients.",
-    contacts,
+    contacts: contacts,
   };
 }

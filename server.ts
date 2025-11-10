@@ -6,10 +6,11 @@ import express from "express";
 import next from "next";
 import dotenv from "dotenv";
 import auth from "basic-auth";
-import { Server } from "socket.io";
 import { createServer } from "http";
+import { WebSocketServer } from "ws";
 import { queueManager } from "./lib/queues/queueManager";
 import { createClient } from "redis";
+import { setupWebsocketServer } from "./lib/websocket/server";
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
   serverAdapter,
 });
 
-/**\
+/**
  * @dev This middleware function will be used by the defined Express router to ensure that its called only from the localhost
  */
 const verifyAPIKey = (req: any, res: any, next: any) => {
@@ -44,6 +45,9 @@ async function main() {
   const app = express();
   const server = createServer(app);
 
+  // Initialize WebSocket Server
+  const wss = setupWebsocketServer(server);
+
   app.use(express.json());
 
   const queues = await queueManager.getQueues();
@@ -51,7 +55,7 @@ async function main() {
     addQueue(new BullAdapter(queue));
   }
 
-  //NOTE: this part manages blll queues
+  //NOTE: this part manages bull queues
   app.use(
     "/admin/queues",
     async (req, res, next) => {
@@ -84,7 +88,11 @@ async function main() {
 
     const ping = await redisClient.ping();
 
-    res.json({ status: "ok", redis: ping === "PONG" });
+    res.json({ 
+      status: "ok", 
+      redis: ping === "PONG",
+      websocket: wss.clients.size + " clients connected"
+    });
   });
 
   // API endpoint to update queues
@@ -100,34 +108,13 @@ async function main() {
     }
   });
 
-  //NOTE: web this part manages next js
+  //NOTE: this part manages next js
   app.use((req, res) => handle(req, res));
 
-  //NOTE: web sockets
-  const io = new Server(server, {
-    path: "/api/socket",
-    cors: {
-      origin: "*",
-    },
-  });
-  io.on("connection", (socket) => {
-    console.log("🔌 Socket connected:", socket.id);
-
-    socket.emit("message", "Connected!");
-
-    socket.on("ping", (msg) => {
-      console.log("Received ping:", msg);
-      socket.emit("pong", `Pong: ${msg}`);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected:", socket.id);
-    });
-  });
-
   const port = Number(process.env.PORT) || 3000;
-  app.listen(port, "0.0.0.0", () => {
-    console.log("next js running withtin express");
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`🚀 Server running on http://0.0.0.0:${port}`);
+    console.log(`🔌 WebSocket server running on ws://0.0.0.0:${port}`);
   });
 }
 

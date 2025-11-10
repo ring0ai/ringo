@@ -46,14 +46,17 @@ class QueueManager {
     const preExistingQueue = await db.query.queuesTable.findFirst({
       where: eq(queuesTable.name, name)
     });
+
+    let queue: Queue.Queue;
     if (preExistingQueue) {
       console.log("queue already exists");
-      return new Queue(preExistingQueue.name);
+      queue = new Queue(preExistingQueue.name);
+    } else {
+      console.log("queue does not exist");
+      queue = new Queue(name, process.env.REDIS_URL!);
     }
-    console.log("queue does not exist");
 
     // Create new queue
-    const queue = new Queue(name, process.env.REDIS_URL!);
     queue.on("active", (job) => {
       console.log(`Job ${job.id} is active`);
     });
@@ -84,6 +87,7 @@ class QueueManager {
     });
     console.log("post api called");
     if (response.status !== 201) {
+      console.log(`Response = ${response.status} | ${response}` );
       throw new Error("Failed to create queue");
     }
 

@@ -4,6 +4,7 @@ import { campaignContactsTable, contactsTable } from "@/db/schemas";
 import { Queue } from "bull";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
+import { initiateCall } from "@/lib/services/twilio";
 
 dotenv.config();
 
@@ -29,25 +30,11 @@ export const callWorker = (queue: Queue) => {
       }
 
       // Call the client
-      const client = require("twilio")(
-        process.env.TWILIO_ACCOUNT_SID!,
-        process.env.TWILIO_AUTH_TOKEN!
-      );
-
-      const twiml = `
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Response>
-          <Say language="en">"This call may be monitored or recorded for quality purposes"</Say>
-          <Connect>
-            <Stream url="wss://${process.env.API_BASE_URL}/api/campaigns/${campaignId}/calls/${contact.id}" />
-          </Connect>
-        </Response>
-      `;
-
-      await client.calls.create({
-        twiml: twiml,
-        from: fromNumber,
-        to: contact.number,
+      await initiateCall({
+        fromNumber: fromNumber,
+        toNumber: contact.number,
+        campaignId: campaignId,
+        contactId: contact.id,
       });
 
       await db

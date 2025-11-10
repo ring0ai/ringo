@@ -209,6 +209,9 @@ importers:
       twilio:
         specifier: ^5.10.3
         version: 5.10.3
+      ws:
+        specifier: ^8.18.3
+        version: 8.18.3
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
@@ -222,6 +225,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.9
         version: 4.1.16
+      '@types/basic-auth':
+        specifier: ^1.1.8
+        version: 1.1.8
       '@types/express':
         specifier: ^5.0.4
         version: 5.0.4
@@ -1896,6 +1902,9 @@ packages:
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
     engines: {node: '>=12'}
+
+  '@types/basic-auth@1.1.8':
+    resolution: {integrity: sha512-dKcUeixGuZn8pBjcUrf1N7x5K6lWuKuwHHitM2IZ4vwZUDWEhhNtwCWiba8jTA9zn0GQQ+fTFkWpKx8pOU/enw==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -4896,6 +4905,10 @@ snapshots:
   '@tanstack/store@0.7.7': {}
 
   '@tanstack/table-core@8.21.3': {}
+
+  '@types/basic-auth@1.1.8':
+    dependencies:
+      '@types/node': 22.18.12
 
   '@types/body-parser@1.19.6':
     dependencies:
