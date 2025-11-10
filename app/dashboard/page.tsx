@@ -20,6 +20,8 @@ export default function DashboardPage() {
     "name",
   );
   const { data: campaigns, isLoading, error } = useCampaignsList();
+  // __AUTO_GENERATED_PRINT_VAR_START__
+  console.log("DashboardPage campaigns:", campaigns); // __AUTO_GENERATED_PRINT_VAR_END__
 
   // const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
   const totalNumbers = 100;

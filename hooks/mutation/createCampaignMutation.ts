@@ -14,7 +14,7 @@ export const useCreateCampaignMutation = () => {
     mutationFn: async (campaign: CreateCampaignSchema) => {
       const response = await createCampaign(campaign);
       if ("error" in response) {
-        throw new Error(response.error);
+        throw new Error(response.message);
       }
       return response.data;
     },
