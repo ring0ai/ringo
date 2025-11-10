@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main  # Change to your production branch
-  # Optional: manual trigger
-  workflow_dispatch:
 
 jobs:
   deploy:
