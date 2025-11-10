@@ -24,7 +24,7 @@ jobs:
             # Source environment to load Node.js paths
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-             
+
             cd /root/ringo
             git checkout main
             git pull origin main
@@ -32,6 +32,6 @@ jobs:
             # Build and deploy NextJs application:
             pnpm install
             pnpm build
-            pm2 restart ringo
+            pm2 restart ringo-app
             
             echo "Deployment completed successfully!"
