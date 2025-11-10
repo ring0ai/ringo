@@ -21,6 +21,10 @@ jobs:
           key: ${{ secrets.VULTR_SSH_PRIVATE_KEY }}
           port: ${{ secrets.VULTR_SERVER_PORT || 22 }}
           script: |
+            # Source environment to load Node.js paths
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+             
             cd /root/ringo
             git checkout main
             git pull origin main
