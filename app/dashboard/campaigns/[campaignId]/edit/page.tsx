@@ -19,16 +19,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import type { Campaign } from "@/lib/types";
 import { useAuth } from "@clerk/nextjs";
+import { CampaignDetails } from "@/lib/types";
+import useCampaignDetails from "@/hooks/query/useCampaingDetails";
 
 export default function EditCampaignPage() {
-  const {userId} = useAuth();
+  const { userId } = useAuth();
   const router = useRouter();
-  const params = useParams();
-  const campaignId = params.id as string;
+  const { campaignId } = useParams<{ campaignId: string }>();
   const [isLoading, setIsLoading] = useState(false);
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [campaign, setCampaign] = useState<CampaignDetails | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -40,8 +40,9 @@ export default function EditCampaignPage() {
     newClientPhone: "",
   });
 
+  const { data: foundCampaign } = useCampaignDetails({ campaignId });
+
   useEffect(() => {
-    const foundCampaign = getCampaignById(campaignId);
     if (foundCampaign) {
       setCampaign(foundCampaign);
       setFormData({
@@ -71,10 +72,7 @@ export default function EditCampaignPage() {
     setIsLoading(true);
 
     try {
-      if (
-        !formData.name ||
-        !formData.description
-      ) {
+      if (!formData.name || !formData.description) {
         alert("Please fill in all required fields");
         return;
       }
@@ -93,7 +91,7 @@ export default function EditCampaignPage() {
           description: formData.description,
           clientId,
           clientName,
-          campaignText: formData.campaignText
+          campaignText: formData.campaignText,
         });
       }
 

@@ -18,7 +18,7 @@ const useCampaignDetails = ({
     queryFn: async () => {
       const campaign = await getCampaignDetails({ campaignId });
       if ("error" in campaign) {
-        throw new Error(campaign.error);
+        throw new Error(campaign.message);
       }
       return campaign.data;
     },

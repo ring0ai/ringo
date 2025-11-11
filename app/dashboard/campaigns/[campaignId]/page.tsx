@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getCampaignById, getCallLogsByCampaign } from "@/lib/campaign-store";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import { getCallLogsByCampaign } from "@/lib/campaign-store";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,21 +14,26 @@ import {
 import Link from "next/link";
 import { CallDetailsSidebar } from "@/components/call-details-sidebar";
 import { StatCardWithChart } from "@/components/stat-card-with-chart";
+import useCampaignDetails from "@/hooks/query/useCampaingDetails";
 
 export default function CampaignDetailsPage() {
-  const router = useRouter();
-  const params = useParams();
-  const campaignId = params.id as string;
+  const { campaignId } = useParams<{ campaignId: string }>();
   const [activeTab, setActiveTab] = useState<
     "overview" | "calls" | "logs" | "targets"
   >("overview");
   const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+  const {
+    data: campaign,
+    isLoading,
+    error,
+    refetch,
+  } = useCampaignDetails({ campaignId });
+  console.log("campaign", campaign, error);
 
-  const campaign = getCampaignById(campaignId);
   const callLogs = campaign ? getCallLogsByCampaign(campaignId) : [];
 
   const completionRate = Math.round(
-    (campaign.completedCalls / campaign.totalNumbers) * 100,
+    (campaign?.completedCalls / campaign?.totalNumbers) * 100,
   );
   const ongoingCalls = callLogs.filter(
     (log) => log.callStatus === "pending",
@@ -41,9 +46,9 @@ export default function CampaignDetailsPage() {
   ).length;
 
   const callStatusData = [
-    { name: "Completed", value: completedCalls, fill: "#22c55e" },
-    { name: "Failed", value: failedCalls, fill: "#ef4444" },
-    { name: "Pending", value: ongoingCalls, fill: "#eab308" },
+    { name: "Completed", value: 5, fill: "#22c55e" },
+    { name: "Failed", value: 4, fill: "#ef4444" },
+    { name: "Pending", value: 5, fill: "#eab308" },
   ];
 
   const dailyCallsData = [
@@ -66,14 +71,20 @@ export default function CampaignDetailsPage() {
       id: "targets",
       label: "Target Numbers",
       icon: "📱",
-      badge: campaign.targetNumbers.length,
+      badge: campaign?.campaignContacts?.length,
     },
   ];
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!campaign) {
+    return <div>Campaign not found</div>;
+  }
 
   return (
     <main className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/dashboard">
             <Button
@@ -84,16 +95,13 @@ export default function CampaignDetailsPage() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-primary">{campaign.name}</h1>
-            <p className="text-muted-foreground mt-1">
-              Client: {campaign.clientName}
-            </p>
+            <h1 className="text-4xl font-bold text-primary">
+              {campaign.title}
+            </h1>
           </div>
           <div className="flex gap-2">
             <Link href={`/dashboard/campaigns/${campaign.id}/edit`}>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Edit
-              </Button>
+              <Button>Edit</Button>
             </Link>
             <span
               className={`px-4 py-2 rounded-full text-sm font-semibold ${
@@ -109,10 +117,9 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
 
-        {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Numbers", value: campaign.totalNumbers },
+            { label: "Total Numbers", value: campaign.campaignContacts.length },
             { label: "Completed", value: completedCalls },
             { label: "In Queue", value: campaign.queuedCalls },
             { label: "Completion Rate", value: `${completionRate}%` },
@@ -148,7 +155,6 @@ export default function CampaignDetailsPage() {
           />
         </div>
 
-        {/* Tabs */}
         <div className="mb-8">
           <div className="flex gap-2 border-b border-border/50 overflow-x-auto">
             {tabs.map((tab) => (
@@ -173,9 +179,7 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
 
-        {/* Tab Content */}
         <div>
-          {/* Overview Tab */}
           {activeTab === "overview" && (
             <div className="space-y-6">
               {/* Campaign Info Card */}
@@ -199,7 +203,7 @@ export default function CampaignDetailsPage() {
                       Campaign Text (Agent Script)
                     </label>
                     <p className="text-foreground text-sm mt-1 p-3 bg-muted rounded-lg italic border border-border/50">
-                      {campaign.campaignText}
+                      {campaign.prompt}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -223,7 +227,6 @@ export default function CampaignDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Call Statistics Cards */}
               <Card className="border-border/50">
                 <CardHeader className="border-b border-border/50 pb-3">
                   <CardTitle className="text-base">Call Statistics</CardTitle>
@@ -260,7 +263,6 @@ export default function CampaignDetailsPage() {
             </div>
           )}
 
-          {/* Ongoing Calls Tab */}
           {activeTab === "calls" && (
             <Card className="border-border/50">
               <CardHeader className="border-b border-border/50 pb-3">
@@ -305,7 +307,6 @@ export default function CampaignDetailsPage() {
             </Card>
           )}
 
-          {/* Call Logs Tab */}
           {activeTab === "logs" && (
             <Card className="border-border/50">
               <CardHeader className="border-b border-border/50 pb-3">
@@ -360,7 +361,6 @@ export default function CampaignDetailsPage() {
             </Card>
           )}
 
-          {/* Target Numbers Tab */}
           {activeTab === "targets" && (
             <Card className="border-border/50">
               <CardHeader className="border-b border-border/50 pb-3">
@@ -369,14 +369,17 @@ export default function CampaignDetailsPage() {
                   All phone numbers for this campaign
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardContent className="">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
-                  {campaign.targetNumbers.map((number, idx) => (
+                  {campaign.campaignContacts.map((number, idx) => (
                     <div
                       key={idx}
-                      className="p-2 rounded-lg border border-border/50 bg-muted/30 hover:border-primary/50 transition-colors text-xs font-medium text-foreground"
+                      className="space-y-1 border rounded-md p-2 shadow"
                     >
-                      {number}
+                      <p>{number.contact?.name}</p>
+                      <p className="text-muted-foreground">
+                        {number.contact?.number}
+                      </p>
                     </div>
                   ))}
                 </div>
