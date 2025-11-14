@@ -30,13 +30,13 @@ class QueueManager {
 
   async getQueue(name: string): Promise<Queue.Queue> {
     const queue = await db.query.queuesTable.findFirst({
-      where: eq(queuesTable.name, name)
+      where: eq(queuesTable.name, name),
     });
 
     if (!queue) {
       throw new Error(`Queue with name ${name} does not exist`);
     }
-    
+
     return new Queue(queue.name);
   }
 
@@ -44,7 +44,7 @@ class QueueManager {
   async createQueue(name: string, taskType: TaskType): Promise<Queue.Queue> {
     console.log("create queue called");
     const preExistingQueue = await db.query.queuesTable.findFirst({
-      where: eq(queuesTable.name, name)
+      where: eq(queuesTable.name, name),
     });
 
     let queue: Queue.Queue;
@@ -75,27 +75,30 @@ class QueueManager {
 
     console.log("queue created");
     // Make post API call to localhost:3000/api/internal/queues with name
-    const response = await fetch(`${process.env.API_BASE_URL}/api/internal/queues`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.LOCAL_API_KEY!,
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/api/internal/queues`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.LOCAL_API_KEY!,
+        },
+        body: JSON.stringify({
+          name,
+        }),
       },
-      body: JSON.stringify({
-        name,
-      }),
-    });
+    );
     console.log("post api called");
     if (response.status !== 201) {
-      console.log(`Response = ${response.status} | ${response}` );
+      console.log(`Response = ${response.status} | ${response}`);
       throw new Error("Failed to create queue");
     }
 
     await db.insert(queuesTable).values({
       name,
-      task_type: taskType
+      task_type: taskType,
     });
-  
+
     console.log(`Queue with name ${name} created`);
 
     return queue;
@@ -105,4 +108,3 @@ class QueueManager {
 export const queueManager = new QueueManager();
 
 export { TaskType };
-

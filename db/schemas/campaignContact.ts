@@ -6,8 +6,8 @@ export const callStatusEnum = pgEnum("call_status", [
   "idle",
   "queued",
   "in-progress",
-  "completed"
-])
+  "completed",
+]);
 
 export const campaignContactsTable = pgTable("campaign_contacts", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -30,4 +30,3 @@ export const campaignContactsTable = pgTable("campaign_contacts", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
-
