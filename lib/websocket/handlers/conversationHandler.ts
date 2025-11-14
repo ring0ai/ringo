@@ -1,5 +1,8 @@
 import deepgramDefaultConfig from "@/config/deepgram";
 import { env } from "@/config/env";
+import { db } from "@/db";
+import { campaignsTable } from "@/db/schemas";
+import { eq } from "drizzle-orm";
 import { IncomingMessage } from "http";
 import { WebSocket } from "ws";
 
@@ -13,7 +16,22 @@ const getDeepgramWs = async (
       Authorization: `Token ${env.DEEPGRAM_API_KEY}`,
     },
   });
-  let config = deepgramDefaultConfig;
+  
+  const campaign = await db.query.campaignsTable.findFirst({
+    where: eq(campaignsTable.id, campaignId)
+  });
+  
+  const config = {
+    ...deepgramDefaultConfig,
+    agent: {
+      ...deepgramDefaultConfig.agent,
+      think: {
+        ...deepgramDefaultConfig.agent.think,
+        prompt: `#User Prompt \n ${campaign?.prompt} \n\n ${deepgramDefaultConfig.agent.think.prompt}`
+      },
+      greeting: "Hello! Is this the right time for you to speak to me?",
+    }
+  };
 
   return new Promise((resolve, reject) => {
     ws.on("open", () => {
@@ -21,9 +39,7 @@ const getDeepgramWs = async (
     });
 
     ws.on("message", (message) => {
-      // console.log("Received message from Deepgram:", message);
       if (typeof message === "string") {
-        // console.log("Received message from Deepgram:", message);
         const decoded = JSON.parse(message);
         if (decoded.type === "UserStartedSpeaking") {
           console.log("Clearing twilio stream");
@@ -37,7 +53,6 @@ const getDeepgramWs = async (
         }
       }
 
-      console.log(typeof message);
       const rawMulaw = message as Buffer;
 
       const mediaMessage = {
@@ -45,7 +60,6 @@ const getDeepgramWs = async (
         streamSid: streamSid,
         media: { payload: rawMulaw.toString("base64") },
       };
-      // console.log("Sending message to twilio:", mediaMessage);
       twilioWs.send(JSON.stringify(mediaMessage));
     });
 
