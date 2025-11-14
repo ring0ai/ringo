@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   HelpCircle,
   Bell,
@@ -12,8 +12,9 @@ import {
   Sun,
   Moon,
   LayoutDashboard,
-  Megaphone,
 } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 const Header = ({
   currentPage = "Dashboard",
@@ -24,6 +25,8 @@ const Header = ({
   const [darkMode, setDarkMode] = useState(false);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
+  const { signOut } = useClerk();
+  const router = useRouter();
 
   // Navigation items
   const navItems = [
@@ -33,16 +36,8 @@ const Header = ({
       icon: LayoutDashboard,
       path: "/dashboard",
     },
-    {
-      id: "campaigns",
-      label: "Campaigns",
-      icon: Megaphone,
-      path: "/campaigns",
-    },
-    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
-  // Sample notifications
   const notifications = [
     {
       id: 1,
@@ -146,39 +141,8 @@ const Header = ({
               return (
                 <button
                   key={item.id}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200"
-                  style={{
-                    backgroundColor: isActive
-                      ? darkMode
-                        ? "rgb(164, 143, 255)"
-                        : "rgb(110, 86, 207)"
-                      : "transparent",
-                    color: isActive
-                      ? darkMode
-                        ? "rgb(15, 15, 26)"
-                        : "rgb(255, 255, 255)"
-                      : darkMode
-                        ? "rgb(160, 160, 192)"
-                        : "rgb(108, 108, 138)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.backgroundColor = darkMode
-                        ? "rgb(48, 48, 96)"
-                        : "rgb(240, 240, 250)";
-                      e.currentTarget.style.color = darkMode
-                        ? "rgb(226, 226, 245)"
-                        : "rgb(42, 42, 74)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.color = darkMode
-                        ? "rgb(160, 160, 192)"
-                        : "rgb(108, 108, 138)";
-                    }
-                  }}
+                  onClick={() => router.push(item.path)}
+                  className="flex bg-primary text-black hover:bg-primary/80 items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200"
                 >
                   <Icon className="w-4 h-4" />
                   <span
@@ -269,44 +233,12 @@ const Header = ({
 
             {/* Notifications Dropdown */}
             {notificationsOpen && (
-              <div
-                className="absolute right-0 mt-2 w-80 rounded-lg shadow-xl"
-                style={{
-                  backgroundColor: darkMode
-                    ? "rgb(26, 26, 46)"
-                    : "rgb(255, 255, 255)",
-                  border: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
-                  boxShadow: darkMode
-                    ? "0px 4px 10px 0px hsl(240 30% 5% / 0.30)"
-                    : "0px 4px 10px 0px hsl(240 30% 25% / 0.12)",
-                }}
-              >
-                <div
-                  className="p-4"
-                  style={{
-                    borderBottom: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
-                  }}
-                >
+              <div className="absolute right-0 mt-2 w-80 rounded-lg shadow-xl bg-background border">
+                <div className="p-4 border-b-2">
                   <div className="flex items-center justify-between">
-                    <h3
-                      className="text-sm font-semibold"
-                      style={{
-                        color: darkMode
-                          ? "rgb(226, 226, 245)"
-                          : "rgb(42, 42, 74)",
-                      }}
-                    >
-                      Notifications
-                    </h3>
+                    <h3 className="text-sm font-semibold">Notifications</h3>
                     {unreadCount > 0 && (
-                      <span
-                        className="text-xs font-medium"
-                        style={{
-                          color: darkMode
-                            ? "rgb(164, 143, 255)"
-                            : "rgb(110, 86, 207)",
-                        }}
-                      >
+                      <span className="text-xs font-medium to-muted-foreground">
                         {unreadCount} unread
                       </span>
                     )}
@@ -316,70 +248,18 @@ const Header = ({
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className="p-4 transition-colors cursor-pointer"
-                      style={{
-                        backgroundColor: notification.unread
-                          ? darkMode
-                            ? "rgba(164, 143, 255, 0.1)"
-                            : "rgba(110, 86, 207, 0.05)"
-                          : "transparent",
-                        borderBottom: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = darkMode
-                          ? "rgb(34, 34, 68)"
-                          : "rgb(240, 240, 250)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor =
-                          notification.unread
-                            ? darkMode
-                              ? "rgba(164, 143, 255, 0.1)"
-                              : "rgba(110, 86, 207, 0.05)"
-                            : "transparent";
-                      }}
+                      className="p-4 transition-colors cursor-pointer border-2"
                     >
                       <div className="flex items-start space-x-3">
-                        <div
-                          className="mt-1 w-2 h-2 rounded-full"
-                          style={{
-                            backgroundColor: notification.unread
-                              ? darkMode
-                                ? "rgb(164, 143, 255)"
-                                : "rgb(110, 86, 207)"
-                              : "transparent",
-                          }}
-                        ></div>
+                        <div className="mt-1 w-2 h-2 rounded-full"></div>
                         <div className="flex-1">
-                          <p
-                            className="text-sm font-medium"
-                            style={{
-                              color: darkMode
-                                ? "rgb(226, 226, 245)"
-                                : "rgb(42, 42, 74)",
-                            }}
-                          >
+                          <p className="text-sm font-medium">
                             {notification.title}
                           </p>
-                          <p
-                            className="text-xs mt-1"
-                            style={{
-                              color: darkMode
-                                ? "rgb(160, 160, 192)"
-                                : "rgb(108, 108, 138)",
-                            }}
-                          >
+                          <p className="text-xs mt-1 text-muted-foreground">
                             {notification.description}
                           </p>
-                          <p
-                            className="text-xs mt-2"
-                            style={{
-                              color: darkMode
-                                ? "rgb(160, 160, 192)"
-                                : "rgb(108, 108, 138)",
-                              opacity: 0.7,
-                            }}
-                          >
+                          <p className="text-xs mt-2 text-muted-foreground">
                             {notification.time}
                           </p>
                         </div>
@@ -387,12 +267,7 @@ const Header = ({
                     </div>
                   ))}
                 </div>
-                <div
-                  className="p-3"
-                  style={{
-                    borderTop: `1px solid ${darkMode ? "rgb(48, 48, 82)" : "rgb(224, 224, 240)"}`,
-                  }}
-                >
+                <div className="p-3 border-t-2">
                   <button
                     className="w-full text-center text-sm font-medium transition-colors"
                     style={{
@@ -408,7 +283,6 @@ const Header = ({
             )}
           </div>
 
-          {/* Profile Picture with Dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
@@ -604,6 +478,9 @@ const Header = ({
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                    onClick={() => {
+                      signOut();
                     }}
                   >
                     <LogOut className="w-4 h-4" />

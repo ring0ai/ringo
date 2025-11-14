@@ -1,4 +1,4 @@
-import { getCampaigns } from "./server-functions/campaign";
+import { getCampaignDetails, getCampaigns } from "./server-functions/campaign";
 import { SuccessData } from "./utils";
 
 export interface Client {
@@ -38,3 +38,5 @@ export interface AuthState {
 }
 
 export type CampaignListItem = SuccessData<typeof getCampaigns>[number];
+
+export type CampaignDetails = SuccessData<typeof getCampaignDetails>;
