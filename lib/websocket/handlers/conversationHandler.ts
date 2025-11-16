@@ -16,26 +16,27 @@ const getDeepgramWs = async (
       Authorization: `Token ${env.DEEPGRAM_API_KEY}`,
     },
   });
-  
+
   const campaign = await db.query.campaignsTable.findFirst({
-    where: eq(campaignsTable.id, campaignId)
+    where: eq(campaignsTable.id, campaignId),
   });
-  
+
   const config = {
     ...deepgramDefaultConfig,
     agent: {
       ...deepgramDefaultConfig.agent,
       think: {
         ...deepgramDefaultConfig.agent.think,
-        prompt: `#User Prompt \n ${campaign?.prompt} \n\n ${deepgramDefaultConfig.agent.think.prompt}`
+        prompt: `#User Prompt \n ${campaign?.prompt} \n\n ${deepgramDefaultConfig.agent.think.prompt}`,
       },
       greeting: "Hello! Is this the right time for you to speak to me?",
-    }
+    },
   };
 
   return new Promise((resolve, reject) => {
     ws.on("open", () => {
       ws.send(JSON.stringify(config));
+      resolve(ws);
     });
 
     ws.on("message", (message) => {
@@ -67,8 +68,6 @@ const getDeepgramWs = async (
       console.error("WebSocket error:", error);
       reject(error);
     });
-
-    resolve(ws);
   });
 };
 
