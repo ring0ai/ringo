@@ -18,6 +18,7 @@ const getDeepgramWs = async (
   return new Promise((resolve, reject) => {
     ws.on("open", () => {
       ws.send(JSON.stringify(config));
+      resolve(ws);
     });
 
     ws.on("message", (message) => {
@@ -53,8 +54,6 @@ const getDeepgramWs = async (
       console.error("WebSocket error:", error);
       reject(error);
     });
-
-    resolve(ws);
   });
 };
 

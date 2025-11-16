@@ -1,5 +1,3 @@
-"use client";
-
 import { CallDetailsSidebar } from "@/components/call-details-sidebar";
 import {
   Card,
