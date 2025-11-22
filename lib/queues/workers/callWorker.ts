@@ -4,6 +4,7 @@ import { campaignContactsTable, contactsTable } from "@/db/schemas";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { initiateCall } from "@/lib/services/twilio";
+import { redisClient } from "@/lib/redis";
 
 
 export const setupCallWorker = (queueName: string) => {
@@ -45,5 +46,5 @@ export const setupCallWorker = (queueName: string) => {
           eq(campaignContactsTable.contactId, contactId)
         )
       );
-  });
+  }, {connection: redisClient});
 };

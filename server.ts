@@ -70,8 +70,6 @@ async function main() {
   );
 
   app.get("/api/health", async (req, res) => {
-    console.log(`Redis URL: ${process.env.REDIS_URL}`);
-
     const ping = await redisClient.ping();
 
     res.json({
