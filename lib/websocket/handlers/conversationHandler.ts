@@ -6,10 +6,12 @@ import { eq } from "drizzle-orm";
 import { IncomingMessage } from "http";
 import { WebSocket } from "ws";
 
+const startTime: { [key: string]: number } = {};
+
 const getDeepgramWs = async (
   twilioWs: WebSocket,
   streamSid: string,
-  campaignId: string,
+  campaignId: string
 ): Promise<WebSocket> => {
   const ws = new WebSocket("wss://agent.deepgram.com/v1/agent/converse", {
     headers: {
@@ -48,7 +50,7 @@ const getDeepgramWs = async (
             JSON.stringify({
               event: "clear",
               streamSid: streamSid,
-            }),
+            })
           );
           return;
         }
@@ -73,7 +75,7 @@ const getDeepgramWs = async (
 
 export const conversationHandler = async (
   twilioWs: WebSocket,
-  req: IncomingMessage,
+  req: IncomingMessage
 ) => {
   console.log("Twilio Connection established");
 
@@ -112,6 +114,7 @@ async function twilioReceiver(twilioWs: WebSocket) {
               streamSid = messageData.start.streamSid;
               campaignId = messageData.start.customParameters.campaignId;
               contactId = messageData.start.customParameters.contactId;
+              startTime[streamSid] = Date.now();
               deepgramWs = await getDeepgramWs(twilioWs, streamSid, campaignId);
               resolve({ deepgramWs, streamSid });
               break;
@@ -121,6 +124,14 @@ async function twilioReceiver(twilioWs: WebSocket) {
               const chunk = Buffer.from(media.payload, "base64");
               if (media.track === "inbound") {
                 inbuffer = Buffer.concat([inbuffer, chunk]);
+              }
+
+              // Check if the conversation is over 5min
+              if (Date.now() - startTime[streamSid] > 5 * 60 * 1000) {
+                console.log("🔴Ending the call due to time limit");
+                if (deepgramWs) deepgramWs.close(1000, "Ended");
+                twilioWs.close(1000, "Ended");
+                break;
               }
 
               while (inbuffer.length >= BUFFER_SIZE) {
@@ -146,6 +157,6 @@ async function twilioReceiver(twilioWs: WebSocket) {
           reject(error);
         }
       });
-    },
+    }
   );
 }

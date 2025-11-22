@@ -1,16 +1,15 @@
-import Queue from "bull";
 import { createBullBoard } from "@bull-board/api";
-import { BullAdapter } from "@bull-board/api/bullAdapter";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 import express from "express";
 import next from "next";
 import dotenv from "dotenv";
 import auth from "basic-auth";
 import { createServer } from "http";
-import { queueManager } from "./lib/queues/queueManager";
-import { createClient } from "redis";
 import { setupWebsocketServer } from "./lib/websocket/server";
 import url from "url";
+import { redisClient } from "./lib/redis";
+import { callQueue } from "./lib/queues/queueManager";
 
 dotenv.config();
 
@@ -21,23 +20,10 @@ const handle = nextApp.getRequestHandler();
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
-const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
-  queues: [],
+createBullBoard({
+  queues: [new BullMQAdapter(callQueue)],
   serverAdapter,
 });
-
-/**
- * @dev This middleware function will be used by the defined Express router to ensure that its called only from the localhost
- */
-const verifyAPIKey = (req: any, res: any, next: any) => {
-  const apiKey = process.env.LOCAL_API_KEY;
-  const apiKeyHeader = req.headers["x-api-key"];
-  if (apiKey !== apiKeyHeader) {
-    console.log("Invalid API key");
-    return res.status(401).send("Unauthorized");
-  }
-  next();
-};
 
 async function main() {
   await nextApp.prepare();
@@ -67,11 +53,6 @@ async function main() {
 
   app.use(express.json());
 
-  const queues = await queueManager.getQueues();
-  for (const queue of queues) {
-    addQueue(new BullAdapter(queue));
-  }
-
   //NOTE: this part manages bull queues
   app.use(
     "/admin/queues",
@@ -85,23 +66,11 @@ async function main() {
       }
       next();
     },
-    serverAdapter.getRouter(),
+    serverAdapter.getRouter()
   );
 
   app.get("/api/health", async (req, res) => {
     console.log(`Redis URL: ${process.env.REDIS_URL}`);
-    // Check redis connection
-    const redisClient = createClient({
-      url: process.env.REDIS_URL,
-    });
-    if (!redisClient.isOpen) {
-      await redisClient.connect();
-    }
-
-    redisClient.on("error", (err) => {
-      console.error("Redis connection error:", err);
-      res.status(500).json({ message: "Redis connection error" });
-    });
 
     const ping = await redisClient.ping();
 
@@ -110,19 +79,6 @@ async function main() {
       redis: ping === "PONG",
       websocket: wss.clients.size + " clients connected",
     });
-  });
-
-  // API endpoint to update queues
-  app.post("/api/internal/queues", verifyAPIKey, async (req, res) => {
-    console.log("🔌 Queues updated:", req.body);
-    try {
-      const queue = new Queue(req.body.name);
-      addQueue(new BullAdapter(queue));
-      res.status(201).json({ message: "Queue created successfully" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Failed to create queue" });
-    }
   });
 
   //NOTE: this part manages next js
