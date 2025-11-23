@@ -1,17 +1,17 @@
 'use server';
 
-import { db } from '@/db';
-import { campaignsTable } from '@/db/schemas/campaign';
-import { createErrorResponse, createSuccessResponse } from '@/lib/api-response';
-import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq } from 'drizzle-orm';
-import z from 'zod';
-import { CreateCampaignSchema } from '../validators';
-import { campaignContactsTable, contactsTable } from '@/db/schemas';
-import { env } from '@/config/env';
-import { queueManager, TaskType } from '../queues/queueManager';
-import { Campaign } from '@/app/dashboard/utils/types';
-import { ResponseType } from '../types';
+import { db } from "@/db";
+import { campaignsTable } from "@/db/schemas/campaign";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
+import { currentUser } from "@clerk/nextjs/server";
+import { and, desc, eq } from "drizzle-orm";
+import z from "zod";
+import { CreateCampaignSchema } from "../validators";
+import { campaignContactsTable, contactsTable } from "@/db/schemas";
+import { env } from "@/config/env";
+import { callQueue } from "../queues/queueManager";
+import { ResponseType } from "../types";
+import { Campaign } from "@/app/dashboard/utils/types";
 
 const getCampaignsParamsSchema = z
   .object({
@@ -198,13 +198,9 @@ export const initiateCampaign = async (campaignId: string) => {
     // TODO: The number used to make call should be made dynamic in future
     const fromNumber = env.FROM_NUMBER;
 
-    const queue = await queueManager.createQueue(
-      `callWorker#${fromNumber}`,
-      TaskType.CallWorker
-    );
-
     // Add all the contacts to the queue
     const queuePayload = campaign.campaignContacts.map((contact) => ({
+      name: callQueue.name,
       data: {
         campaignId: campaign.id,
         contactId: contact.contact.id,
@@ -214,7 +210,7 @@ export const initiateCampaign = async (campaignId: string) => {
 
     console.log('queue payload', queuePayload);
 
-    await queue.addBulk(queuePayload);
+    await callQueue.addBulk(queuePayload);
 
     return createSuccessResponse(campaign);
   } catch (error) {

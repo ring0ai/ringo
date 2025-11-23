@@ -1,29 +1,48 @@
 import deepgramDefaultConfig from "@/config/deepgram";
 import { env } from "@/config/env";
+import { db } from "@/db";
+import { campaignsTable } from "@/db/schemas";
+import { eq } from "drizzle-orm";
 import { IncomingMessage } from "http";
 import { WebSocket } from "ws";
+
+const startTime: { [key: string]: number } = {};
 
 const getDeepgramWs = async (
   twilioWs: WebSocket,
   streamSid: string,
-  campaignId: string,
+  campaignId: string
 ): Promise<WebSocket> => {
   const ws = new WebSocket("wss://agent.deepgram.com/v1/agent/converse", {
     headers: {
       Authorization: `Token ${env.DEEPGRAM_API_KEY}`,
     },
   });
-  let config = deepgramDefaultConfig;
+
+  const campaign = await db.query.campaignsTable.findFirst({
+    where: eq(campaignsTable.id, campaignId),
+  });
+
+  const config = {
+    ...deepgramDefaultConfig,
+    agent: {
+      ...deepgramDefaultConfig.agent,
+      think: {
+        ...deepgramDefaultConfig.agent.think,
+        prompt: `#User Prompt \n ${campaign?.prompt} \n\n ${deepgramDefaultConfig.agent.think.prompt}`,
+      },
+      greeting: "Hello! Is this the right time for you to speak to me?",
+    },
+  };
 
   return new Promise((resolve, reject) => {
     ws.on("open", () => {
       ws.send(JSON.stringify(config));
+      resolve(ws);
     });
 
     ws.on("message", (message) => {
-      // console.log("Received message from Deepgram:", message);
       if (typeof message === "string") {
-        // console.log("Received message from Deepgram:", message);
         const decoded = JSON.parse(message);
         if (decoded.type === "UserStartedSpeaking") {
           console.log("Clearing twilio stream");
@@ -31,13 +50,12 @@ const getDeepgramWs = async (
             JSON.stringify({
               event: "clear",
               streamSid: streamSid,
-            }),
+            })
           );
           return;
         }
       }
 
-      console.log(typeof message);
       const rawMulaw = message as Buffer;
 
       const mediaMessage = {
@@ -45,7 +63,6 @@ const getDeepgramWs = async (
         streamSid: streamSid,
         media: { payload: rawMulaw.toString("base64") },
       };
-      // console.log("Sending message to twilio:", mediaMessage);
       twilioWs.send(JSON.stringify(mediaMessage));
     });
 
@@ -53,14 +70,12 @@ const getDeepgramWs = async (
       console.error("WebSocket error:", error);
       reject(error);
     });
-
-    resolve(ws);
   });
 };
 
 export const conversationHandler = async (
   twilioWs: WebSocket,
-  req: IncomingMessage,
+  req: IncomingMessage
 ) => {
   console.log("Twilio Connection established");
 
@@ -99,6 +114,7 @@ async function twilioReceiver(twilioWs: WebSocket) {
               streamSid = messageData.start.streamSid;
               campaignId = messageData.start.customParameters.campaignId;
               contactId = messageData.start.customParameters.contactId;
+              startTime[streamSid] = Date.now();
               deepgramWs = await getDeepgramWs(twilioWs, streamSid, campaignId);
               resolve({ deepgramWs, streamSid });
               break;
@@ -108,6 +124,14 @@ async function twilioReceiver(twilioWs: WebSocket) {
               const chunk = Buffer.from(media.payload, "base64");
               if (media.track === "inbound") {
                 inbuffer = Buffer.concat([inbuffer, chunk]);
+              }
+
+              // Check if the conversation is over 5min
+              if (Date.now() - startTime[streamSid] > 5 * 60 * 1000) {
+                console.log("🔴Ending the call due to time limit");
+                if (deepgramWs) deepgramWs.close(1000, "Ended");
+                twilioWs.close(1000, "Ended");
+                break;
               }
 
               while (inbuffer.length >= BUFFER_SIZE) {
@@ -133,6 +157,6 @@ async function twilioReceiver(twilioWs: WebSocket) {
           reject(error);
         }
       });
-    },
+    }
   );
 }
