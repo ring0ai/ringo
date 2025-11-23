@@ -1,19 +1,17 @@
 import { DataTable } from '@/components/ui/data-table';
-import useCampaignsList from '@/services/campaigns/campaign.data';
-import { ColumnDef } from '@tanstack/react-table';
-import { Campaign, CampaignStatus } from './utils/types';
-import { getddMMMYYYYFormat } from '@/utils/helper';
 import Pill, { PillVariant } from '@/components/ui/pill';
+import { useCampaignsList } from '@/hooks/query/useCampaignsList';
+import { getddMMMYYYYFormat } from '@/utils/helper';
 import { SquareArrowUpRight } from 'lucide-react';
 
 const statusMap = {
-  [CampaignStatus.ACTIVE]: PillVariant.Info,
-  [CampaignStatus.INACTIVE]: PillVariant.Default,
-  [CampaignStatus.COMPLETED]: PillVariant.Success,
-  [CampaignStatus.PAUSED]: PillVariant.Warning,
+  'active': PillVariant.Info,
+  'inactive': PillVariant.Default,
+  'completed': PillVariant.Success,
+  'paused': PillVariant.Warning,
 };
 
-const campaignColumns: ColumnDef<Campaign>[] = [
+const campaignColumns = [
   {
     accessorKey: 'title',
     header: 'Title',
@@ -26,7 +24,7 @@ const campaignColumns: ColumnDef<Campaign>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as CampaignStatus;
+      const status = row.getValue('status');
       return <Pill variant={statusMap[status]}>{status}</Pill>;
     },
   },
@@ -66,7 +64,7 @@ const campaignColumns: ColumnDef<Campaign>[] = [
 
 const CampaignsTable = () => {
   const { data } = useCampaignsList();
-  console.log(data);
+
   return (
     <div
       className='container mx-auto py-5'

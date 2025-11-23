@@ -1,17 +1,15 @@
 'use server';
 
-import { db } from "@/db";
-import { campaignsTable } from "@/db/schemas/campaign";
-import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
-import { currentUser } from "@clerk/nextjs/server";
-import { and, desc, eq } from "drizzle-orm";
-import z from "zod";
-import { CreateCampaignSchema } from "../validators";
-import { campaignContactsTable, contactsTable } from "@/db/schemas";
-import { env } from "@/config/env";
-import { callQueue } from "../queues/queueManager";
-import { ResponseType } from "../types";
-import { Campaign } from "@/app/dashboard/utils/types";
+import { env } from '@/config/env';
+import { db } from '@/db';
+import { campaignContactsTable, contactsTable } from '@/db/schemas';
+import { campaignsTable } from '@/db/schemas/campaign';
+import { createErrorResponse, createSuccessResponse } from '@/lib/api-response';
+import { currentUser } from '@clerk/nextjs/server';
+import { and, desc, eq } from 'drizzle-orm';
+import z from 'zod';
+import { callQueue } from '../queues/queueManager';
+import { CreateCampaignSchema } from '../validators';
 
 const getCampaignsParamsSchema = z
   .object({
@@ -85,7 +83,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
 
 export const getCampaigns = async (
   _params?: z.infer<typeof getCampaignsParamsSchema>
-): Promise<ResponseType<Campaign[]>> => {
+) => {
   try {
     const user = await currentUser();
     if (!user) {
