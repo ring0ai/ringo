@@ -2,13 +2,11 @@
 
 ## Bhaskar
 
-- [ ] Optimize deepgram call
-- [ ] Sometimes there is error in the log for when the call is received
 - [ ] There should be a feature where we can see call log of the campaign. Stuff like duration, status etc.
-- [ ] There should be single queue
+- [x] There should be single queue
 - [ ] initiate call for all numbers and batch call
 - [ ] schedule call for later
-- [ ] Call auto disconnect in 2min
+- [x] Call auto disconnect in 5 min
 
 ## Sanket
 
