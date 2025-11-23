@@ -1,6 +1,6 @@
 "use client";
 
-import { queryKeys } from "@/lib/queryClient";
+import { queryKeys } from "@/lib/query-keys";
 import { getCampaignDetails } from "@/lib/server-functions/campaign";
 import { useQuery } from "@tanstack/react-query";
 

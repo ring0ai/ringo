@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createCampaign } from "@/lib/server-functions/campaign";
 import { CreateCampaignSchema } from "@/lib/validators";
 import { toast } from "sonner";
-import { queryClient, queryKeys } from "@/lib/queryClient";
+import { queryClient, queryKeys } from "@/lib/query-keys";
 import { useRouter } from "next/navigation";
 
 export const useCreateCampaignMutation = () => {

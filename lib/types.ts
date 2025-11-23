@@ -1,5 +1,6 @@
-import { getCampaignDetails, getCampaigns } from "./server-functions/campaign";
-import { SuccessData } from "./utils";
+import { ResponseCode } from './api-response';
+import { getCampaignDetails, getCampaigns } from './server-functions/campaign';
+import { SuccessData } from './utils';
 
 export interface Client {
   id: string;
@@ -15,7 +16,7 @@ export interface CallLog {
   phoneNumber: string;
   callDuration: number;
   feedback: string;
-  callStatus: "completed" | "failed" | "pending";
+  callStatus: 'completed' | 'failed' | 'pending';
   timestamp: Date;
   agentNotes?: string;
   discussionPoints?: string;
@@ -27,7 +28,7 @@ export interface CallLog {
 export interface User {
   id: string;
   email: string;
-  role: "admin";
+  role: 'admin';
   createdAt: Date;
 }
 
@@ -40,3 +41,10 @@ export interface AuthState {
 export type CampaignListItem = SuccessData<typeof getCampaigns>[number];
 
 export type CampaignDetails = SuccessData<typeof getCampaignDetails>;
+
+export interface ResponseType<T> {
+  code: ResponseCode;
+  error?: string;
+  data?: T;
+  message: string;
+}

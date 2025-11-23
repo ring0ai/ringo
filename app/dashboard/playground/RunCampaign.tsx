@@ -50,8 +50,8 @@ const CampaignItem = ({ campaign }: { campaign: CampaignListItem }) => {
 };
 
 const RunCampaign = () => {
-  const { data: campaigns } = useCampaignsList();
-
+  const { data: campaigns, error } = useCampaignsList();
+  console.log(campaigns, error)
   return (
     <div className="border-2 flex flex-col  rounded-sm p-4 gap-3">
       {campaigns?.map((campaign) => (

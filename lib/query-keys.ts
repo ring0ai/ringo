@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 export const queryKeys = {
-  campaings: {
+  campaigns: {
     list: ["campaigns"],
     details: (id: string) => ["campaigns", "details", id],
   },

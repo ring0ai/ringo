@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '@/components/ui/data-table';
 
 // Different data type
 type User = {
@@ -117,22 +117,13 @@ export default async function UsersExamplePage() {
     <div
       className='container mx-auto py-10'
       style={{
-        backgroundColor: 'var(--background)',
-        color: 'var(--foreground)',
         minHeight: '100vh',
       }}
     >
-      <h1
-        className='text-3xl font-bold tracking-tight mb-8'
-        style={{
-          color: 'var(--foreground)',
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
+      <h1 className='text-3xl font-bold tracking-tight mb-8'>
         Users Management
       </h1>
-
-      {/* Reusing the same DataTable component with different data */}
+      
       <DataTable columns={userColumns} data={users} searchKey='name' />
     </div>
   );
