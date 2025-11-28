@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import useCampaignsList from "@/hooks/query/useCampaingsList";
+import { useCampaignsList } from "@/hooks/query/useCampaignsList";
 import { initiateCampaign } from "@/lib/server-functions/campaign";
 import { CampaignListItem } from "@/lib/types";
 import { useState } from "react";
@@ -51,7 +51,7 @@ const CampaignItem = ({ campaign }: { campaign: CampaignListItem }) => {
 
 const RunCampaign = () => {
   const { data: campaigns, error } = useCampaignsList();
-  console.log(campaigns, error)
+  console.log(campaigns, error);
   return (
     <div className="border-2 flex flex-col  rounded-sm p-4 gap-3">
       {campaigns?.map((campaign) => (
