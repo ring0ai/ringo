@@ -9,6 +9,8 @@ import { StatCardWithChart } from "@/components/stat-card-with-chart";
 import useCampaignDetails from "@/hooks/query/useCampaingDetails";
 import CampaignTabs from "./CampaignTabs";
 import { getCallLogsByCampaign } from "@/lib/campaign-store";
+import { initiateCampaign } from "@/lib/server-functions/campaign";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function CampaignDetailsPage() {
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -19,6 +21,7 @@ export default function CampaignDetailsPage() {
     error,
     refetch,
   } = useCampaignDetails({ campaignId });
+  const [loading, setLoading] = useState(false);
 
   const completionRate = Math.round(
     (campaign?.completedCalls / campaign?.totalNumbers) * 100,
@@ -43,6 +46,17 @@ export default function CampaignDetailsPage() {
     { date: "Thu", calls: 9 },
     { date: "Fri", calls: 7 },
   ];
+
+  const handleStartCampaign = async () => {
+    try {
+      setLoading(true);
+      await initiateCampaign(campaignId);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -72,6 +86,16 @@ export default function CampaignDetailsPage() {
             <Link href={`/dashboard/campaigns/${campaign.id}/edit`}>
               <Button variant="outline">Edit</Button>
             </Link>
+            <Button
+              onClick={() => {
+                handleStartCampaign();
+              }}
+              disabled={loading}
+            >
+              {loading && <Spinner />}
+              Run Campaign
+            </Button>
+
             <Button
               onClick={() => {
                 alert("Not implemented yet");
