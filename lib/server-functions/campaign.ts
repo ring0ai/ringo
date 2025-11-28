@@ -9,7 +9,7 @@ import z from "zod";
 import { CreateCampaignSchema } from "../validators";
 import { campaignContactsTable, contactsTable } from "@/db/schemas";
 import { env } from "@/config/env";
-import { queueManager, TaskType } from "../queues/queueManager";
+import { callQueue } from "../queues/queueManager";
 
 const getCampaignsParamsSchema = z
   .object({
@@ -49,7 +49,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
           campaign.contacts.map((contact) => ({
             name: contact.name,
             number: contact.number,
-          })),
+          }))
         )
         .returning({ id: contactsTable.id });
 
@@ -67,7 +67,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
         insertedContacts.map((contact) => ({
           campaignId: insertedCampaign.id,
           contactId: contact.id,
-        })),
+        }))
       );
 
       return insertedCampaign;
@@ -82,7 +82,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
 };
 
 export const getCampaigns = async (
-  _params?: z.infer<typeof getCampaignsParamsSchema>,
+  _params?: z.infer<typeof getCampaignsParamsSchema>
 ) => {
   try {
     const user = await currentUser();
@@ -114,7 +114,7 @@ export const getCampaigns = async (
         ...campaign,
         completedCalls: campaign.campaignContacts.reduce(
           (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
-          0,
+          0
         ),
         totalNumbers: campaign.campaignContacts.length,
       };
@@ -129,7 +129,7 @@ export const getCampaigns = async (
 };
 
 export const getCampaignDetails = async (
-  _params?: z.infer<typeof getCampaignDetailsParamsSchema>,
+  _params?: z.infer<typeof getCampaignDetailsParamsSchema>
 ) => {
   try {
     const user = await currentUser();
@@ -142,7 +142,7 @@ export const getCampaignDetails = async (
     const campaign = await db.query.campaignsTable.findFirst({
       where: and(
         eq(campaignsTable.id, params.campaignId),
-        eq(campaignsTable.created_by, user.id),
+        eq(campaignsTable.created_by, user.id)
       ),
       with: {
         campaignContacts: {
@@ -160,7 +160,28 @@ export const getCampaignDetails = async (
       return createErrorResponse("Campaign not found");
     }
 
-    return createSuccessResponse(campaign);
+    const result = {
+      ...campaign,
+      completedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
+        0
+      ),
+      queuedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "queued" ? 1 : 0),
+        0
+      ),
+      idleCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "idle" ? 1 : 0),
+        0
+      ),
+      inProgressCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "in-progress" ? 1 : 0),
+        0
+      ),
+      totalNumbers: campaign.campaignContacts.length,
+    };
+
+    return createSuccessResponse(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
@@ -179,7 +200,7 @@ export const initiateCampaign = async (campaignId: string) => {
     const campaign = await db.query.campaignsTable.findFirst({
       where: and(
         eq(campaignsTable.id, campaignId),
-        eq(campaignsTable.created_by, user.id),
+        eq(campaignsTable.created_by, user.id)
       ),
       with: {
         campaignContacts: {
@@ -196,13 +217,9 @@ export const initiateCampaign = async (campaignId: string) => {
     // TODO: The number used to make call should be made dynamic in future
     const fromNumber = env.FROM_NUMBER;
 
-    const queue = await queueManager.createQueue(
-      `callWorker#${fromNumber}`,
-      TaskType.CallWorker,
-    );
-
     // Add all the contacts to the queue
     const queuePayload = campaign.campaignContacts.map((contact) => ({
+      name: callQueue.name,
       data: {
         campaignId: campaign.id,
         contactId: contact.contact.id,
@@ -212,7 +229,14 @@ export const initiateCampaign = async (campaignId: string) => {
 
     console.log("queue payload", queuePayload);
 
-    await queue.addBulk(queuePayload);
+    await callQueue.addBulk(queuePayload);
+
+    await db
+      .update(campaignContactsTable)
+      .set({
+        call_status: "queued",
+      })
+      .where(eq(campaignContactsTable.campaignId, campaign.id));
 
     return createSuccessResponse(campaign);
   } catch (error) {

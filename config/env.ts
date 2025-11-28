@@ -1,5 +1,8 @@
+import { config } from "dotenv";
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+
+config();
 
 export const env = createEnv({
   server: {

@@ -18,8 +18,8 @@ const CampaignTabs = () => {
   >(
     "tab",
     parseAsStringEnum(["overview", "calls", "logs", "targets"]).withDefault(
-      "overview",
-    ),
+      "overview"
+    )
   );
 
   const { campaignId } = useParams<{ campaignId: string }>();
@@ -30,13 +30,13 @@ const CampaignTabs = () => {
   const callLogs = campaign ? getCallLogsByCampaign(campaignId) : [];
 
   const ongoingCalls = callLogs.filter(
-    (log) => log.callStatus === "pending",
+    (log) => log.callStatus === "pending"
   ).length;
   const completedCalls = callLogs.filter(
-    (log) => log.callStatus === "completed",
+    (log) => log.callStatus === "completed"
   ).length;
   const failedCalls = callLogs.filter(
-    (log) => log.callStatus === "failed",
+    (log) => log.callStatus === "failed"
   ).length;
   const tabs = [
     { id: "overview", label: "Overview", icon: "📊" },
@@ -141,15 +141,15 @@ const CampaignTabs = () => {
                       Completed
                     </div>
                     <div className="text-xl font-bold text-green-700 dark:text-green-300 mt-1">
-                      {completedCalls}
+                      {campaign?.completedCalls}
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                     <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
-                      Ongoing
+                      In Progress
                     </div>
                     <div className="text-xl font-bold text-yellow-700 dark:text-yellow-300 mt-1">
-                      {ongoingCalls}
+                      {campaign?.inProgressCalls}
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
@@ -245,8 +245,8 @@ const CampaignTabs = () => {
                             log.callStatus === "completed"
                               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                               : log.callStatus === "failed"
-                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
                           }`}
                         >
                           {log.callStatus}

@@ -24,19 +24,20 @@ export default function CampaignDetailsPage() {
   const [loading, setLoading] = useState(false);
 
   const completionRate = Math.round(
-    (campaign?.completedCalls / campaign?.totalNumbers) * 100,
+    (campaign?.completedCalls / campaign?.totalNumbers) * 100
   );
 
   const callLogs = campaign ? getCallLogsByCampaign(campaignId) : [];
 
   const completedCalls = callLogs.filter(
-    (log) => log.callStatus === "completed",
+    (log) => log.callStatus === "completed"
   ).length;
 
   const callStatusData = [
-    { name: "Completed", value: 5, fill: "#22c55e" },
-    { name: "Failed", value: 4, fill: "#ef4444" },
-    { name: "Pending", value: 5, fill: "#eab308" },
+    { name: "Completed", value: campaign?.completedCalls, fill: "#22c55e" },
+    { name: "Queued", value: campaign?.queuedCalls, fill: "#3b82f6" },
+    { name: "Pending", value: campaign?.idleCalls, fill: "#eab308" },
+    { name: "In Progress", value: campaign?.inProgressCalls, fill: "#f6c141" },
   ];
 
   const dailyCallsData = [
@@ -109,8 +110,11 @@ export default function CampaignDetailsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Numbers", value: campaign.campaignContacts.length },
-            { label: "Completed", value: completedCalls },
-            { label: "In Queue", value: campaign.queuedCalls },
+            { label: "Completed", value: campaign.completedCalls },
+            {
+              label: "In Queue",
+              value: campaign.totalNumbers - campaign.completedCalls,
+            },
             { label: "Completion Rate", value: `${completionRate}%` },
           ].map((metric, idx) => (
             <Card
