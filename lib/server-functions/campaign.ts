@@ -1,36 +1,36 @@
-'use server';
+"use server";
 
-import { env } from '@/config/env';
-import { db } from '@/db';
-import { campaignContactsTable, contactsTable } from '@/db/schemas';
-import { campaignsTable } from '@/db/schemas/campaign';
-import { createErrorResponse, createSuccessResponse } from '@/lib/api-response';
-import { currentUser } from '@clerk/nextjs/server';
-import { and, desc, eq } from 'drizzle-orm';
-import z from 'zod';
-import { callQueue } from '../queues/queueManager';
-import { CreateCampaignSchema } from '../validators';
+import { env } from "@/config/env";
+import { db } from "@/db";
+import { campaignContactsTable, contactsTable } from "@/db/schemas";
+import { campaignsTable } from "@/db/schemas/campaign";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
+import { currentUser } from "@clerk/nextjs/server";
+import { and, desc, eq } from "drizzle-orm";
+import z from "zod";
+import { callQueue } from "../queues/queueManager";
+import { CreateCampaignSchema } from "../validators";
 
 const getCampaignsParamsSchema = z
   .object({
     page: z.number().optional().default(1),
     size: z.number().optional().default(10),
-    orderBy: z.enum(['createdAt', 'title']).optional().default('createdAt'),
+    orderBy: z.enum(["createdAt", "title"]).optional().default("createdAt"),
   })
   .optional()
   .default({
     page: 1,
     size: 10,
-    orderBy: 'createdAt',
+    orderBy: "createdAt",
   });
 
 const getCampaignDetailsParamsSchema = z.object({
   campaignId: z.string().uuid(),
 });
 
-const sortBy = (orderBy: 'createdAt' | 'title') => {
+const sortBy = (orderBy: "createdAt" | "title") => {
   switch (orderBy) {
-    case 'createdAt':
+    case "createdAt":
       return desc(campaignsTable.createdAt);
   }
 };
@@ -39,7 +39,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
   try {
     const user = await currentUser();
     if (!user) {
-      return createErrorResponse('User not found', 'UNAUTHORIZED');
+      return createErrorResponse("User not found", "UNAUTHORIZED");
     }
 
     const newCampaign = await db.transaction(async (trx) => {
@@ -76,7 +76,7 @@ export const createCampaign = async (campaign: CreateCampaignSchema) => {
     return createSuccessResponse(newCampaign);
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+      error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage);
   }
 };
@@ -87,7 +87,7 @@ export const getCampaigns = async (
   try {
     const user = await currentUser();
     if (!user) {
-      return createErrorResponse('User not found', 'UNAUTHORIZED');
+      return createErrorResponse("User not found", "UNAUTHORIZED");
     }
 
     const params = getCampaignsParamsSchema.parse(_params);
@@ -113,7 +113,7 @@ export const getCampaigns = async (
       return {
         ...campaign,
         completedCalls: campaign.campaignContacts.reduce(
-          (sum, c) => sum + (c.call_status === 'completed' ? 1 : 0),
+          (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
           0
         ),
         totalNumbers: campaign.campaignContacts.length,
@@ -123,8 +123,8 @@ export const getCampaigns = async (
     return createSuccessResponse(response);
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
-    return createErrorResponse(errorMessage, 'INTERNAL_ERROR');
+      error instanceof Error ? error.message : "Unknown error";
+    return createErrorResponse(errorMessage, "INTERNAL_ERROR");
   }
 };
 
@@ -134,7 +134,7 @@ export const getCampaignDetails = async (
   try {
     const user = await currentUser();
     if (!user) {
-      return createErrorResponse('User not found', 'UNAUTHORIZED');
+      return createErrorResponse("User not found", "UNAUTHORIZED");
     }
 
     const params = getCampaignDetailsParamsSchema.parse(_params);
@@ -157,23 +157,44 @@ export const getCampaignDetails = async (
     });
 
     if (!campaign) {
-      return createErrorResponse('Campaign not found');
+      return createErrorResponse("Campaign not found");
     }
 
-    return createSuccessResponse(campaign);
+    const result = {
+      ...campaign,
+      completedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
+        0
+      ),
+      queuedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "queued" ? 1 : 0),
+        0
+      ),
+      idleCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "idle" ? 1 : 0),
+        0
+      ),
+      inProgressCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "in-progress" ? 1 : 0),
+        0
+      ),
+      totalNumbers: campaign.campaignContacts.length,
+    };
+
+    return createSuccessResponse(result);
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+      error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage);
   }
 };
 
 export const initiateCampaign = async (campaignId: string) => {
   try {
-    console.log('initiate campaign called');
+    console.log("initiate campaign called");
     const user = await currentUser();
     if (!user) {
-      return createErrorResponse('User not found', 'UNAUTHORIZED');
+      return createErrorResponse("User not found", "UNAUTHORIZED");
     }
 
     const campaign = await db.query.campaignsTable.findFirst({
@@ -190,7 +211,7 @@ export const initiateCampaign = async (campaignId: string) => {
       },
     });
     if (!campaign) {
-      return createErrorResponse('Campaign not found', 'NOT_FOUND');
+      return createErrorResponse("Campaign not found", "NOT_FOUND");
     }
 
     // TODO: The number used to make call should be made dynamic in future
@@ -206,15 +227,22 @@ export const initiateCampaign = async (campaignId: string) => {
       },
     }));
 
-    console.log('queue payload', queuePayload);
+    console.log("queue payload", queuePayload);
 
     await callQueue.addBulk(queuePayload);
 
+    await db
+      .update(campaignContactsTable)
+      .set({
+        call_status: "queued",
+      })
+      .where(eq(campaignContactsTable.campaignId, campaign.id));
+
     return createSuccessResponse(campaign);
   } catch (error) {
-    console.log('error', error);
+    console.log("error", error);
     const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error';
+      error instanceof Error ? error.message : "Unknown error";
     return createErrorResponse(errorMessage);
   }
 };

@@ -33,22 +33,20 @@ export default function CampaignDetailsPage() {
   const callLogs = campaign ? getCallLogsByCampaign(campaignId) : [];
 
   const completionRate = Math.round(
-    (campaign?.completedCalls / campaign?.totalNumbers) * 100,
+    (campaign?.completedCalls / campaign?.totalNumbers) * 100
   );
   const ongoingCalls = callLogs.filter(
-    (log) => log.callStatus === "pending",
-  ).length;
-  const completedCalls = callLogs.filter(
-    (log) => log.callStatus === "completed",
+    (log) => log.callStatus === "pending"
   ).length;
   const failedCalls = callLogs.filter(
-    (log) => log.callStatus === "failed",
+    (log) => log.callStatus === "failed"
   ).length;
 
   const callStatusData = [
-    { name: "Completed", value: 5, fill: "#22c55e" },
-    { name: "Failed", value: 4, fill: "#ef4444" },
-    { name: "Pending", value: 5, fill: "#eab308" },
+    { name: "Completed", value: campaign?.completedCalls, fill: "#22c55e" },
+    { name: "Queued", value: campaign?.queuedCalls, fill: "#3b82f6" },
+    { name: "Pending", value: campaign?.idleCalls, fill: "#eab308" },
+    { name: "In Progress", value: campaign?.inProgressCalls, fill: "#f6c141" },
   ];
 
   const dailyCallsData = [
@@ -108,8 +106,8 @@ export default function CampaignDetailsPage() {
                 campaign.status === "active"
                   ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                   : campaign.status === "paused"
-                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
               }`}
             >
               {campaign.status}
@@ -120,8 +118,11 @@ export default function CampaignDetailsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Total Numbers", value: campaign.campaignContacts.length },
-            { label: "Completed", value: completedCalls },
-            { label: "In Queue", value: campaign.queuedCalls },
+            { label: "Completed", value: campaign.completedCalls },
+            {
+              label: "In Queue",
+              value: campaign.totalNumbers - campaign.completedCalls,
+            },
             { label: "Completion Rate", value: `${completionRate}%` },
           ].map((metric, idx) => (
             <Card
@@ -238,15 +239,15 @@ export default function CampaignDetailsPage() {
                         Completed
                       </div>
                       <div className="text-xl font-bold text-green-700 dark:text-green-300 mt-1">
-                        {completedCalls}
+                        {campaign?.completedCalls}
                       </div>
                     </div>
                     <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                       <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
-                        Ongoing
+                        In Progress
                       </div>
                       <div className="text-xl font-bold text-yellow-700 dark:text-yellow-300 mt-1">
-                        {ongoingCalls}
+                        {campaign?.inProgressCalls}
                       </div>
                     </div>
                     <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
@@ -342,8 +343,8 @@ export default function CampaignDetailsPage() {
                               log.callStatus === "completed"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                                 : log.callStatus === "failed"
-                                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+                                ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
                             }`}
                           >
                             {log.callStatus}
