@@ -14,7 +14,7 @@ const useCampaignDetails = ({
   enabled = true,
 }: CampaignDetailsParams) => {
   return useQuery({
-    queryKey: queryKeys.campaings.details(campaignId),
+    queryKey: queryKeys.campaigns.details(campaignId),
     queryFn: async () => {
       const campaign = await getCampaignDetails({ campaignId });
       if ("error" in campaign) {
