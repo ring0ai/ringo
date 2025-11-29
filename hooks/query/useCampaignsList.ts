@@ -1,10 +1,10 @@
-import { queryKeys } from "@/lib/queryClient";
+import { queryKeys } from "@/lib/query-keys";
 import { getCampaigns } from "@/lib/server-functions/campaign";
 import { useQuery } from "@tanstack/react-query";
 
-const useCampaignsList = () => {
+export const useCampaignsList = () => {
   return useQuery({
-    queryKey: queryKeys.campaings.list,
+    queryKey: queryKeys.campaigns.list,
     queryFn: async () => {
       const campaigns = await getCampaigns();
       if ("error" in campaigns) {
@@ -14,5 +14,3 @@ const useCampaignsList = () => {
     },
   });
 };
-
-export default useCampaignsList;

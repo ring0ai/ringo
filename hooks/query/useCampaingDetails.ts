@@ -1,6 +1,6 @@
 "use client";
 
-import { queryKeys } from "@/lib/queryClient";
+import { queryKeys } from "@/lib/query-keys";
 import { getCampaignDetails } from "@/lib/server-functions/campaign";
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,7 +14,7 @@ const useCampaignDetails = ({
   enabled = true,
 }: CampaignDetailsParams) => {
   return useQuery({
-    queryKey: queryKeys.campaings.details(campaignId),
+    queryKey: queryKeys.campaigns.details(campaignId),
     queryFn: async () => {
       const campaign = await getCampaignDetails({ campaignId });
       if ("error" in campaign) {
