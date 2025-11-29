@@ -7,12 +7,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import CampaignsTable from './CampaignsTable';
+import { useCampaignsList } from '@/hooks/query/useCampaignsList';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'completion'>(
     'name'
   );
+  const { data: campaigns, isLoading, error } = useCampaignsList();
 
   // const totalNumbers = campaigns.reduce((sum, c) => sum + c.totalNumbers, 0);
   const totalNumbers = 100;

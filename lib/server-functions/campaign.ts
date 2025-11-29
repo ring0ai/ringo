@@ -113,7 +113,7 @@ export const getCampaigns = async (
       return {
         ...campaign,
         completedCalls: campaign.campaignContacts.reduce(
-          (sum, c) => sum + (c.call_status === 'completed' ? 1 : 0),
+          (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
           0
         ),
         totalNumbers: campaign.campaignContacts.length,
@@ -160,7 +160,28 @@ export const getCampaignDetails = async (
       return createErrorResponse('Campaign not found');
     }
 
-    return createSuccessResponse(campaign);
+    const result = {
+      ...campaign,
+      completedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "completed" ? 1 : 0),
+        0
+      ),
+      queuedCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "queued" ? 1 : 0),
+        0
+      ),
+      idleCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "idle" ? 1 : 0),
+        0
+      ),
+      inProgressCalls: campaign.campaignContacts.reduce(
+        (sum, c) => sum + (c.call_status === "in-progress" ? 1 : 0),
+        0
+      ),
+      totalNumbers: campaign.campaignContacts.length,
+    };
+
+    return createSuccessResponse(result);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
@@ -209,6 +230,13 @@ export const initiateCampaign = async (campaignId: string) => {
     console.log('queue payload', queuePayload);
 
     await callQueue.addBulk(queuePayload);
+
+    await db
+      .update(campaignContactsTable)
+      .set({
+        call_status: "queued",
+      })
+      .where(eq(campaignContactsTable.campaignId, campaign.id));
 
     return createSuccessResponse(campaign);
   } catch (error) {

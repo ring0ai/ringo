@@ -1,8 +1,8 @@
 import deepgramDefaultConfig from "@/config/deepgram";
 import { env } from "@/config/env";
 import { db } from "@/db";
-import { campaignsTable } from "@/db/schemas";
-import { eq } from "drizzle-orm";
+import { campaignContactsTable, campaignsTable } from "@/db/schemas";
+import { and, eq, sql } from "drizzle-orm";
 import { IncomingMessage } from "http";
 import { WebSocket } from "ws";
 
@@ -89,8 +89,8 @@ async function twilioReceiver(twilioWs: WebSocket) {
   let inbuffer = Buffer.alloc(0);
 
   let streamSid: string;
-  let campaignId;
-  let contactId;
+  let campaignId: string;
+  let contactId: string;
   let deepgramWs: WebSocket | null;
 
   return new Promise<{ deepgramWs: WebSocket | null; streamSid: string }>(
@@ -115,6 +115,34 @@ async function twilioReceiver(twilioWs: WebSocket) {
               campaignId = messageData.start.customParameters.campaignId;
               contactId = messageData.start.customParameters.contactId;
               startTime[streamSid] = Date.now();
+
+              // Update the progress in database
+              await db.transaction(async (trx) => {
+                await trx
+                  .update(campaignContactsTable)
+                  .set({
+                    call_status: "in-progress",
+                  })
+                  .where(
+                    and(
+                      eq(campaignContactsTable.campaignId, campaignId),
+                      eq(campaignContactsTable.contactId, contactId)
+                    )
+                  );
+
+                await trx
+                  .update(campaignsTable)
+                  .set({
+                    status: "active",
+                  })
+                  .where(
+                    and(
+                      eq(campaignsTable.id, campaignId),
+                      eq(campaignsTable.status, "inactive")
+                    )
+                  );
+              });
+
               deepgramWs = await getDeepgramWs(twilioWs, streamSid, campaignId);
               resolve({ deepgramWs, streamSid });
               break;
@@ -147,6 +175,36 @@ async function twilioReceiver(twilioWs: WebSocket) {
               console.log("🔴 Ended");
               if (deepgramWs) deepgramWs.close(1000, "Ended");
               twilioWs.close(1000, "Ended");
+
+              // Update the progress in database
+              await db.transaction(async (trx) => {
+                await trx
+                  .update(campaignContactsTable)
+                  .set({
+                    call_status: "completed",
+                  })
+                  .where(
+                    and(
+                      eq(campaignContactsTable.campaignId, campaignId),
+                      eq(campaignContactsTable.contactId, contactId)
+                    )
+                  );
+
+                await trx.execute(
+                  sql`
+                    UPDATE campaigns
+                    SET status = 'completed'
+                    WHERE id = ${campaignId}
+                      AND NOT EXISTS (
+                        SELECT 1
+                        FROM campaign_contacts
+                        WHERE campaign_id = ${campaignId}
+                          AND call_status != 'completed'
+                      );
+                  `
+                );
+              });
+
               break;
 
             default:
